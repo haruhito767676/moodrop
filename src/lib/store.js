@@ -33,6 +33,16 @@ export async function setRootHandle(handle) {
   await chrome.storage.local.set({ rootName: handle.name });
 }
 
+// 保存先ルートを別のフォルダに変えたとき、前のルートを前提にした記録（科目ごとの保存先・保存済み）を消す
+export async function resetForNewRoot() {
+  await chrome.storage.local.remove(['courseDirs', 'savedFiles']);
+}
+
+export async function hasRootBoundData() {
+  const { courseDirs, savedFiles } = await chrome.storage.local.get(['courseDirs', 'savedFiles']);
+  return Boolean((courseDirs && Object.keys(courseDirs).length) || (savedFiles && Object.keys(savedFiles).length));
+}
+
 export const permissionOf = (handle) => handle.queryPermission({ mode: 'readwrite' });
 
 /* ---------- 設定 ---------- */

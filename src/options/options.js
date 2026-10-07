@@ -1,4 +1,7 @@
-import { getRootHandle, setRootHandle, permissionOf, getSettings, setSettings, getCourseDirs, forgetCourseDir } from '../lib/store.js';
+import {
+  getRootHandle, setRootHandle, permissionOf, getSettings, setSettings, getCourseDirs, forgetCourseDir,
+  resetForNewRoot, hasRootBoundData,
+} from '../lib/store.js';
 import { getSites, enableSite, disableSite, originOf } from '../lib/sites.js';
 
 const $ = (id) => document.getElementById(id);
@@ -53,8 +56,21 @@ $('pick').addEventListener('click', async () => {
   $('pick-msg').textContent = '';
   try {
     const handle = await showDirectoryPicker({ id: 'moodrop-root', mode: 'readwrite', startIn: 'documents' });
+
+    // 別のフォルダに変える場合は、前のフォルダを前提にした記録をリセットする（確認してから）
+    const old = await getRootHandle();
+    const changed = old && !(await old.isSameEntry(handle).catch(() => false));
+    if (changed && (await hasRootBoundData())) {
+      const ok = confirm(
+        `保存先を「${handle.name}」に変更します。\n\n科目ごとの保存先と「保存済み」の記録はリセットされ、次に保存するときに、もう一度選び直します（保存済みのファイルは消えません）。\n\nよろしいですか？`
+      );
+      if (!ok) return;
+      await resetForNewRoot();
+    }
+
     await setRootHandle(handle);
     await renderRoot();
+    await renderCourses();
   } catch (e) {
     if (e.name === 'AbortError') return;
     $('pick-msg').textContent = `フォルダを選べませんでした（${e.message}）。別のフォルダを選んでください。`;
