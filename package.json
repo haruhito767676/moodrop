@@ -1,0 +1,11 @@
+{
+  "name": "moodrop",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Save Moodle course files to any local folder.",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "license": "MIT"
+}

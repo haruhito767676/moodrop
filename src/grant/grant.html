@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moodrop</title>
+  <link rel="stylesheet" href="../ui.css" />
+</head>
+<body class="grant">
+  <main>
+    <h1>保存先フォルダへのアクセスを許可</h1>
+    <p>ブラウザを再起動したあとなどは、保存先フォルダ <b id="name">…</b> へのアクセスをもう一度確認する必要があります。</p>
+    <button id="allow" class="primary" type="button">許可する</button>
+    <p class="hint">確認ダイアログで「サイトを開くたびに許可」を選ぶと、次回から表示されません。</p>
+    <p id="msg" class="hint"></p>
+  </main>
+  <script type="module" src="grant.js"></script>
+</body>
+</html>
