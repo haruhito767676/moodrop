@@ -46,7 +46,14 @@ async function renderRoot() {
   if (root) {
     $('root-name').textContent = root.name;
     $('root-set').textContent = '変更…';
+    return;
   }
+  // 保存先が未設定なら、案内の「保存先」のステップから続けられるようにする
+  $('setup-card').hidden = false;
+  $('setup-go').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('src/welcome/welcome.html?step=1') });
+    window.close();
+  });
 }
 
 async function renderRecent() {
