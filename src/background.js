@@ -4,6 +4,7 @@
 import { sanitizeName, savedKey, rankFolders } from './lib/names.js';
 import { fetchMoodleFile, parseFilenameFromDisposition } from './lib/moodle.js';
 import { exists, uniqueName, writeFile } from './lib/fs.js';
+import { ensureSiteScripts } from './lib/sites.js';
 import {
   getRootHandle,
   permissionOf,
@@ -21,7 +22,14 @@ const OPTIONS_PAGE = 'src/options/options.html';
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') chrome.tabs.create({ url: chrome.runtime.getURL(`${OPTIONS_PAGE}?welcome`) });
+  // 更新・再読み込みのあとも、登録済みサイトで確実に動くようにスクリプトを登録し直す
+  ensureSiteScripts({ force: true }).catch((e) => console.warn('[Moodrop]', e));
 });
+chrome.runtime.onStartup.addListener(() => {
+  ensureSiteScripts().catch((e) => console.warn('[Moodrop]', e));
+});
+// service worker が起動するたびに、登録が消えていないか確認する
+ensureSiteScripts().catch((e) => console.warn('[Moodrop]', e));
 
 /* ---------- 保存先フォルダ ---------- */
 

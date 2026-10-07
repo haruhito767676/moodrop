@@ -20,11 +20,7 @@ export async function getSites() {
   return sites;
 }
 
-// ユーザー操作（クリック）の中から直接呼ぶこと（permissions.request の要件）
-export async function enableSite(origin, tabId) {
-  const granted = await chrome.permissions.request({ origins: [`${origin}/*`] });
-  if (!granted) return false;
-
+async function registerSite(origin) {
   const id = scriptId(origin);
   await chrome.scripting.unregisterContentScripts({ ids: [id] }).catch(() => {});
   await chrome.scripting.registerContentScripts([
@@ -37,7 +33,25 @@ export async function enableSite(origin, tabId) {
       persistAcrossSessions: true,
     },
   ]);
+}
 
+// すでに開いているタブにも、再読み込みなしで反映する
+async function injectIntoOpenTabs(origin) {
+  const tabs = await chrome.tabs.query({ url: `${origin}/*` }).catch(() => []);
+  for (const tab of tabs) {
+    try {
+      await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: [STYLE] });
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: SCRIPTS });
+    } catch { /* 読み込み中・閉じられた等。次回の読み込みから有効になる */ }
+  }
+}
+
+// ユーザー操作（クリック）の中から直接呼ぶこと（permissions.request の要件）
+export async function enableSite(origin, tabId) {
+  const granted = await chrome.permissions.request({ origins: [`${origin}/*`] });
+  if (!granted) return false;
+
+  await registerSite(origin);
   const sites = await getSites();
   if (!sites.includes(origin)) {
     await chrome.storage.local.set({ sites: [...sites, origin] });
@@ -51,6 +65,24 @@ export async function enableSite(origin, tabId) {
     } catch { /* タブが閉じられた等。次回の読み込みから有効になる */ }
   }
   return true;
+}
+
+// 登録済みサイトのスクリプトが、拡張機能の更新・再読み込みなどで消えたり古くなったりしていないか確認して直す。
+// force のときは、必ず最新のファイル構成で登録し直し、開いているタブにも反映する。
+export async function ensureSiteScripts({ force = false } = {}) {
+  const sites = await getSites();
+  const kept = [];
+  for (const origin of sites) {
+    if (!(await chrome.permissions.contains({ origins: [`${origin}/*`] }))) continue; // 権限が外れたサイトは外す
+    kept.push(origin);
+    const existing = await chrome.scripting
+      .getRegisteredContentScripts({ ids: [scriptId(origin)] })
+      .catch(() => []);
+    if (existing.length && !force) continue;
+    await registerSite(origin);
+    if (force) await injectIntoOpenTabs(origin);
+  }
+  if (kept.length !== sites.length) await chrome.storage.local.set({ sites: kept });
 }
 
 export async function disableSite(origin) {

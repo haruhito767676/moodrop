@@ -488,7 +488,7 @@ const ACTIONS_SELECTOR =
   '.activity-actions, [data-region="activity-actions"], .section-actions, .actions, .actionmenu, .action-menu, .completion-info';
 
 // 行ごとに、コントロールの縦位置（リンクの中心）と右端の余白（Moodle自身の操作ボタンを避ける）を測り直す
-const rowLayouts = new Map(); // row -> Set<{anchor, host}>
+const rowLayouts = new Map(); // row -> Map<anchor, host>
 const rowObserver = new ResizeObserver((entries) => {
   entries.forEach((e) => layoutRow(e.target));
 });
@@ -505,7 +505,7 @@ function layoutRow(row) {
     const r = actions.getBoundingClientRect();
     if (r.width && r.left > rowRect.left + rowRect.width / 2) right = Math.max(12, rowRect.right - r.left + 8);
   }
-  items.forEach(({ anchor, host }) => {
+  items.forEach((host, anchor) => {
     const r = anchor.getBoundingClientRect();
     host.style.setProperty('--right', `${right}px`);
     if (r.height) host.style.setProperty('--top', `${r.top + r.height / 2 - rowRect.top - row.clientTop}px`);
@@ -528,32 +528,55 @@ function placeControl(anchor, rec) {
   row.appendChild(rec.wrap);
 
   if (!rowLayouts.has(row)) {
-    rowLayouts.set(row, new Set());
+    rowLayouts.set(row, new Map());
     rowObserver.observe(row);
     // 行にポインタを乗せたとき（またはキーボードで触れたとき）だけ、アイコンを強調する
-    const hot = (on) => rowLayouts.get(row).forEach(({ host }) => host.toggleAttribute('data-hot', on));
+    const hot = (on) => rowLayouts.get(row).forEach((host) => host.toggleAttribute('data-hot', on));
     row.addEventListener('pointerenter', () => hot(true));
     row.addEventListener('pointerleave', () => hot(false));
     row.addEventListener('focusin', () => hot(true));
     row.addEventListener('focusout', () => hot(false));
   }
-  rowLayouts.get(row).add({ anchor, host: rec.wrap });
+  rowLayouts.get(row).set(anchor, rec.wrap);
   layoutRow(row);
 }
 
 function injectButtons() {
+  // Moodle が行を描き直すときに、こちらが足したボタンだけが消えることがある。
+  // リンクが残っていてボタンが外れていれば、付け直す。
+  controls.forEach((rec, a) => {
+    if (!a.isConnected) {
+      controls.delete(a);
+    } else if (!rec.wrap.isConnected) {
+      try {
+        placeControl(a, rec);
+      } catch (e) {
+        console.warn('[Moodrop]', e);
+      }
+    }
+  });
+  rowLayouts.forEach((_, row) => {
+    if (!row.isConnected) {
+      rowObserver.unobserve(row);
+      rowLayouts.delete(row);
+    }
+  });
+
   const anchors = document.querySelectorAll(`a:not([${PROCESSED_ATTR}])`);
   const fresh = [];
 
   anchors.forEach((a) => {
-    if (!isTargetLink(a)) return;
-
-    a.setAttribute(PROCESSED_ATTR, '1');
-
-    const rec = makeControl(a);
-    controls.set(a, rec);
-    placeControl(a, rec);
-    fresh.push(a);
+    // 1件の失敗で、残りの資料にボタンが付かなくならないようにする
+    try {
+      if (!isTargetLink(a)) return;
+      a.setAttribute(PROCESSED_ATTR, '1');
+      const rec = makeControl(a);
+      controls.set(a, rec);
+      placeControl(a, rec);
+      fresh.push(a);
+    } catch (e) {
+      console.warn('[Moodrop]', e);
+    }
   });
 
   if (fresh.length) querySavedState(fresh);
@@ -574,7 +597,7 @@ function querySavedState(anchors) {
 }
 
 // Moodleのフォルダ表示などはJSで後から中身が展開されることがあるため監視する。
-// 変更のたびに走らせると重いのでデバウンスし、監視範囲もメイン領域に絞る。
+// 変更のたびに走らせると重いのでデバウンスする。
 let scanTimer = null;
 function scheduleScan() {
   if (scanTimer) return;
@@ -589,14 +612,15 @@ function scheduleScan() {
 }
 
 function startObserver() {
-  const target =
-    document.querySelector('#region-main, #page-content, [role="main"], .course-content') ||
-    document.body;
-  if (!target) return;
+  // Moodle が領域ごと差し替えることがあるので、特定の領域ではなくページ全体を見る（走査はデバウンス済み）
   const observer = new MutationObserver(scheduleScan);
-  observer.observe(target, { childList: true, subtree: true });
+  observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
   window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
 }
+
+// 拡張機能の更新前に動いていたスクリプトの残骸（付け直せないボタンや目印）を片づけてから始める
+document.querySelectorAll('moodrop-ui, moodrop-bulk, moodrop-layer').forEach((n) => n.remove());
+document.querySelectorAll(`[${PROCESSED_ATTR}]`).forEach((n) => n.removeAttribute(PROCESSED_ATTR));
 
 injectButtons();
 startObserver();
