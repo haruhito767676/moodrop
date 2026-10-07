@@ -44,3 +44,19 @@ test('savedKey drops volatile query params and the hash', () => {
   const b = savedKey('https://m.example/pluginfile.php/1/mod_resource/content/1/a.pdf');
   assert.equal(a, b);
 });
+
+import { rankFolders } from '../src/lib/names.js';
+
+test('rankFolders puts the exact match first and drops unrelated folders', () => {
+  const out = rankFolders(['線形代数', '情報工学I', '情報工学II', '体育'], '情報工学I');
+  assert.deepEqual(out.slice(0, 1), ['情報工学I']);
+  assert.ok(!out.includes('体育'));
+});
+
+test('rankFolders matches a folder named without the year/semester words', () => {
+  assert.deepEqual(rankFolders(['物理学実験', 'その他'], '2026年度 前期 物理学実験'), ['物理学実験']);
+});
+
+test('rankFolders returns nothing when there is no resemblance', () => {
+  assert.deepEqual(rankFolders(['体育'], '微分積分'), []);
+});

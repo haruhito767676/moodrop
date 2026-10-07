@@ -1,6 +1,6 @@
 // 利用するMoodleサイトの登録（権限の取得とコンテンツスクリプトの動的登録）
 
-const SCRIPT = 'src/content/content.js';
+const SCRIPTS = ['src/content/styles.js', 'src/content/ui.js', 'src/content/content.js'];
 const STYLE = 'src/content/content.css';
 
 export function originOf(url) {
@@ -31,7 +31,7 @@ export async function enableSite(origin, tabId) {
     {
       id,
       matches: [`${origin}/*`],
-      js: [SCRIPT],
+      js: SCRIPTS,
       css: [STYLE],
       runAt: 'document_idle',
       persistAcrossSessions: true,
@@ -47,7 +47,7 @@ export async function enableSite(origin, tabId) {
   if (tabId != null) {
     try {
       await chrome.scripting.insertCSS({ target: { tabId }, files: [STYLE] });
-      await chrome.scripting.executeScript({ target: { tabId }, files: [SCRIPT] });
+      await chrome.scripting.executeScript({ target: { tabId }, files: SCRIPTS });
     } catch { /* タブが閉じられた等。次回の読み込みから有効になる */ }
   }
   return true;

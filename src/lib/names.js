@@ -56,3 +56,29 @@ export function savedKey(url) {
     return String(url || '');
   }
 }
+
+// 科目名から検索に使えそうな語を抜き出す（「2026」「前期」「火3」などの共通語は除外）
+export function nameTokens(name) {
+  return (String(name).match(/[A-Za-z0-9぀-ヿ㐀-鿿豈-﫿]{2,}/g) || [])
+    .filter((t) => !/^(19\d{2}|20\d{2}|令和|平成|前期|後期|通年|集中|補講|月|火|水|木|金|土|日|限|曜日?|クラス|組)$/.test(t))
+    .sort((a, b) => b.length - a.length);
+}
+
+// 既存フォルダ名のうち、科目名に近いものを近い順に返す（0件のこともある）
+export function rankFolders(names, courseName) {
+  const q = sanitizeName(courseName, '');
+  if (!q) return [];
+  const tokens = nameTokens(courseName).slice(0, 3);
+  const score = (n) => {
+    if (n === q) return 5;
+    if (n.startsWith(q) || q.startsWith(n)) return 4;
+    if (n.includes(q)) return 3;
+    if (n.length >= 2 && q.includes(n)) return 2;
+    return tokens.some((t) => t.length >= 3 && n.includes(t)) ? 1 : 0;
+  };
+  return names
+    .map((n) => [n, score(n)])
+    .filter(([, s]) => s > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([n]) => n);
+}

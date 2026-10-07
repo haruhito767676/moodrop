@@ -1,5 +1,12 @@
 // content.js
 // Moodleページ上の資料リンクの横に「保存」ボタンを追加します。
+// UI は ui.js（Shadow DOM）に隔離してあり、ここでは検出と保存の流れだけを扱う。
+
+(() => {
+if (window.__moodropLoaded) return; // 登録済みスクリプトと即時注入が重なっても二重に動かさない
+window.__moodropLoaded = true;
+
+const { h, icon, makeHost, request, toast, duplicateAlert, folderSheet } = MoodropUI;
 
 const PROCESSED_ATTR = 'data-moodrop-btn-added';
 
@@ -74,102 +81,6 @@ function guessFilenameFromUrl(url) {
   }
 }
 
-function el(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text != null) node.textContent = text;
-  return node;
-}
-
-// 戻り値: { choice: 'overwrite' | 'rename', applyAll: boolean } または null（キャンセル）
-function openDuplicateDialog(filename, { bulkMode = false } = {}) {
-  return new Promise((resolve) => {
-    const overlay = el('div', 'moodrop-modal-overlay');
-    const modal = el('div', 'moodrop-modal moodrop-modal--small');
-    overlay.appendChild(modal);
-
-    modal.appendChild(el('div', 'moodrop-modal-title', '同じ名前のファイルがすでにあります'));
-    modal.appendChild(
-      el(
-        'div',
-        'moodrop-modal-section-body',
-        `「${filename}」はこのフォルダに存在します。どうしますか？`
-      )
-    );
-
-    let applyAll = null;
-    if (bulkMode) {
-      const lbl = el('label', 'moodrop-modal-remember');
-      applyAll = document.createElement('input');
-      applyAll.type = 'checkbox';
-      lbl.appendChild(applyAll);
-      lbl.appendChild(document.createTextNode(' 以降の重複にも同じ操作を適用する'));
-      modal.appendChild(lbl);
-    }
-
-    const footer = el('div', 'moodrop-modal-footer');
-    const mk = (label, value, className) => {
-      const b = el('button', className, label);
-      b.type = 'button';
-      b.addEventListener('click', () => {
-        overlay.remove();
-        resolve(
-          value ? { choice: value, applyAll: Boolean(applyAll && applyAll.checked) } : null
-        );
-      });
-      return b;
-    };
-    footer.appendChild(mk('キャンセル', null, 'moodrop-modal-cancel'));
-    footer.appendChild(mk('別名で保存', 'rename', 'moodrop-modal-secondary'));
-    footer.appendChild(mk('上書き', 'overwrite', 'moodrop-modal-ok'));
-    modal.appendChild(footer);
-
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        overlay.remove();
-        resolve(null);
-      }
-    });
-    (document.body || document.documentElement).appendChild(overlay);
-  });
-}
-
-/* ---------- トースト通知 ---------- */
-
-let toastHost = null;
-function showToast({ message, actionLabel, onAction, timeout = 8000 }) {
-  if (!toastHost || !toastHost.isConnected) {
-    toastHost = el('div', 'moodrop-toast-host');
-    (document.body || document.documentElement).appendChild(toastHost);
-  }
-  const toast = el('div', 'moodrop-toast');
-  toast.appendChild(el('span', 'moodrop-toast-msg', message));
-
-  let timer = null;
-  const remove = () => {
-    clearTimeout(timer);
-    toast.classList.add('moodrop-toast--out');
-    setTimeout(() => toast.remove(), 180);
-  };
-
-  if (actionLabel && onAction) {
-    const act = el('button', 'moodrop-toast-action', actionLabel);
-    act.type = 'button';
-    act.addEventListener('click', () => {
-      remove();
-      onAction();
-    });
-    toast.appendChild(act);
-  }
-  const close = el('button', 'moodrop-toast-close', '×');
-  close.type = 'button';
-  close.setAttribute('aria-label', '閉じる');
-  close.addEventListener('click', remove);
-  toast.appendChild(close);
-
-  toastHost.appendChild(toast);
-  timer = setTimeout(remove, timeout);
-}
 
 /* ---------- 保存処理 ---------- */
 
@@ -181,21 +92,17 @@ function shortName(anchor) {
 }
 
 function sendSave(anchor, extra) {
+  const { courseKey, courseName } = getCourseInfo();
+  const suggestedName =
+    anchor.textContent.trim().replace(/\s+/g, ' ').slice(0, 200) || guessFilenameFromUrl(anchor.href);
   return new Promise((resolve) => {
-    const { courseKey, courseName } = getCourseInfo();
-    const suggestedName =
-      anchor.textContent.trim().replace(/\s+/g, ' ').slice(0, 200) ||
-      guessFilenameFromUrl(anchor.href);
     try {
       chrome.runtime.sendMessage(
         { type: 'SAVE_FILE', fileUrl: anchor.href, suggestedName, courseKey, courseName, ...extra },
         (resp) => {
           // service worker が途中で止まった場合など、応答が来ないときは lastError になる
-          if (chrome.runtime.lastError) {
-            resolve({ status: 'error', message: chrome.runtime.lastError.message });
-          } else {
-            resolve(resp);
-          }
+          if (chrome.runtime.lastError) resolve({ status: 'error', message: chrome.runtime.lastError.message });
+          else resolve(resp);
         }
       );
     } catch (e) {
@@ -211,25 +118,12 @@ function sendSave(anchor, extra) {
   });
 }
 
-// ユーザーが許可ダイアログなどを自分で閉じただけのケース。
-// これは異常ではないので、エラー欄に載せず通知も出さない。
+// ユーザーが許可ダイアログなどを自分で閉じただけのケース。異常ではないので通知しない。
 function isBenignCancel(message) {
   return /cancel|キャンセル/i.test(message || '');
 }
 
-function request(message) {
-  return new Promise((resolve) => {
-    try {
-      chrome.runtime.sendMessage(message, (resp) => {
-        resolve(chrome.runtime.lastError ? null : resp);
-      });
-    } catch {
-      resolve(null);
-    }
-  });
-}
-
-// 1件保存のコア処理。UIの更新は onState に委ね、権限確認・重複確認を
+// 1件保存のコア処理。UIの更新は onState に委ね、権限・保存先・重複の確認を
 // 挟みながら最大数回リトライする。
 // 戻り値: { ok, benign, message, file }
 async function runSave(anchor, opts = {}) {
@@ -243,7 +137,7 @@ async function runSave(anchor, opts = {}) {
 
 async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
   const setState = onState || (() => {});
-  const state = {}; // onDuplicate を段階的に積む
+  const state = {}; // dirPath / onDuplicate を段階的に積む
   if (bulkCtx && bulkCtx.duplicateChoice) state.onDuplicate = bulkCtx.duplicateChoice;
 
   for (let guard = 0; guard < 6; guard++) {
@@ -253,7 +147,7 @@ async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
     if (resp.status === 'ok') return { ok: true, file: resp.file };
 
     if (resp.status === 'needs_setup') {
-      showToast({
+      toast({
         message: resp.message || '保存先フォルダがまだ選ばれていません',
         actionLabel: '設定を開く',
         onAction: () => request({ type: 'OPEN_OPTIONS' }),
@@ -263,24 +157,34 @@ async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
     }
 
     if (resp.status === 'needs_permission') {
-      setState('許可を確認…', 'moodrop-loading');
+      setState('許可を確認…');
       const grant = await request({ type: 'REQUEST_GRANT' });
       if (!grant || grant.status !== 'ok') {
         return { ok: false, benign: true, message: '保存先フォルダへのアクセス許可がキャンセルされました' };
       }
-      setState('保存中…', 'moodrop-loading');
+      setState('保存中…');
+      continue;
+    }
+
+    if (resp.status === 'needs_folder') {
+      setState('保存先を選択…');
+      const { courseName } = getCourseInfo();
+      const path = await folderSheet({ courseName, ...resp });
+      if (!path) return { ok: false, benign: true, message: '保存先の選択をキャンセルしました' };
+      state.dirPath = path;
+      setState('保存中…');
       continue;
     }
 
     if (resp.status === 'duplicate') {
-      setState('確認…', 'moodrop-loading');
-      const res = await openDuplicateDialog(resp.filename, { bulkMode: Boolean(bulkCtx) });
+      setState('確認…');
+      const res = await duplicateAlert(resp.filename, { bulkMode: Boolean(bulkCtx) });
       if (!res || !res.choice) {
         return { ok: false, benign: true, message: '重複時の操作をキャンセルしました' };
       }
       state.onDuplicate = res.choice;
       if (bulkCtx && res.applyAll) bulkCtx.duplicateChoice = res.choice;
-      setState('保存中…', 'moodrop-loading');
+      setState('保存中…');
       continue;
     }
 
@@ -289,57 +193,57 @@ async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
   return { ok: false, message: '処理を完了できませんでした' };
 }
 
-const BTN_STATES = ['moodrop-loading', 'moodrop-done', 'moodrop-error'];
-
 /* ---------- コントロール（保存ボタン / 保存済み表示） ---------- */
 
 const controls = new Map(); // anchor -> rec
 
 function makeControl(anchor) {
-  const wrap = el('span', 'moodrop-ctl');
-  const rec = { wrap, saved: null, busy: false };
+  const { host, root } = makeHost('moodrop-ui');
+  const ctl = h('span', { class: 'ctl' });
+  root.appendChild(ctl);
+  const rec = { wrap: host, saved: null, busy: false };
 
-  rec.renderSaveButton = () => {
-    wrap.textContent = '';
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'moodrop-save-btn';
-    btn.textContent = '保存';
-    btn.title = 'この資料を科目フォルダに保存';
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      startSingleSave(anchor, rec);
-    });
-    wrap.appendChild(btn);
+  const stop = (fn) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fn();
   };
 
-  rec.renderSaved = (info) => {
+  rec.showSave = () => {
+    ctl.replaceChildren(
+      h('button', { class: 'btn', type: 'button', title: 'この資料を科目フォルダに保存', onclick: stop(() => startSingleSave(anchor, rec)) },
+        icon('download'), '保存')
+    );
+  };
+
+  rec.showBusy = (text) => {
+    ctl.replaceChildren(
+      h('button', { class: 'btn busy', type: 'button', disabled: true, 'aria-live': 'polite' },
+        h('span', { class: 'spinner' }), text)
+    );
+  };
+
+  rec.showError = (text = '保存失敗') => {
+    ctl.replaceChildren(
+      h('button', { class: 'btn err', type: 'button', title: 'クリックで再試行', onclick: stop(() => startSingleSave(anchor, rec)) }, text)
+    );
+  };
+
+  rec.showMessage = (text) => {
+    ctl.replaceChildren(h('button', { class: 'btn busy', type: 'button', disabled: true }, text));
+  };
+
+  rec.showSaved = (info) => {
     rec.saved = info;
-    wrap.textContent = '';
-
-    const label = document.createElement('span');
-    label.className = 'moodrop-saved-link';
-    label.textContent = '保存済み';
-    label.title = info.path ? `保存先: ${info.path}` : info.name || '';
-    wrap.appendChild(label);
-
-    const re = document.createElement('button');
-    re.type = 'button';
-    re.className = 'moodrop-resave-btn';
-    re.textContent = '↻';
-    re.title = 'もう一度保存する';
-    re.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      startSingleSave(anchor, rec);
-    });
-    wrap.appendChild(re);
-
+    ctl.replaceChildren(
+      h('span', { class: 'saved', title: info.path ? `保存先: ${info.path}` : info.name || '' }, icon('check'), '保存済み'),
+      h('button', { class: 'icon-btn', type: 'button', title: 'もう一度保存する', 'aria-label': 'もう一度保存する', onclick: stop(() => startSingleSave(anchor, rec)) },
+        icon('retry'))
+    );
     refreshSectionButtons();
   };
 
-  rec.renderSaveButton();
+  rec.showSave();
   return rec;
 }
 
@@ -347,23 +251,13 @@ function startSingleSave(anchor, rec) {
   if (rec.busy) return;
   rec.busy = true;
   const wasSaved = rec.saved;
+  rec.showBusy('保存中…');
 
-  rec.renderSaveButton();
-  const btn = rec.wrap.querySelector('.moodrop-save-btn');
-  const set = (text, cls) => {
-    if (!btn) return;
-    btn.textContent = text;
-    btn.classList.remove(...BTN_STATES);
-    if (cls) btn.classList.add(cls);
-  };
-  btn.disabled = true;
-  set('保存中…', 'moodrop-loading');
-
-  runSave(anchor, { onState: set }).then((r) => {
+  runSave(anchor, { onState: rec.showBusy }).then((r) => {
     rec.busy = false;
 
     if (r.ok) {
-      rec.renderSaved({
+      rec.showSaved({
         name: (r.file && r.file.name) || shortName(anchor) || '資料',
         path: (r.file && r.file.path) || (wasSaved && wasSaved.path) || '',
       });
@@ -372,26 +266,18 @@ function startSingleSave(anchor, rec) {
 
     if (r.benign) {
       if (r.message) console.debug('[Moodrop]', r.message);
-      if (wasSaved) rec.renderSaved(wasSaved);
-      else {
-        set('キャンセル');
-        setTimeout(() => rec.renderSaveButton(), 1500);
-      }
+      if (wasSaved) rec.showSaved(wasSaved);
+      else rec.showSave();
       return;
     }
 
     console.warn('[Moodrop]', r.message);
-    set('保存失敗', 'moodrop-error');
-    showToast({
+    rec.showError();
+    toast({
       message: `「${shortName(anchor)}」の保存に失敗しました: ${r.message || '不明なエラー'}`,
       actionLabel: '再試行',
       onAction: () => startSingleSave(anchor, rec),
     });
-    setTimeout(() => {
-      if (rec.busy) return;
-      if (wasSaved) rec.renderSaved(wasSaved);
-      else rec.renderSaveButton();
-    }, 4000);
   });
 }
 
@@ -402,6 +288,8 @@ const SECTION_SELECTOR =
 const SECTION_HEADING_SELECTOR =
   '.course-section-header, h3.sectionname, .sectionname, [data-for="section_title"], .section-title, .sectionhead';
 
+const bulks = new WeakMap(); // section -> { host, btn, busy, label }
+
 function sectionAnchors(section) {
   const out = [];
   controls.forEach((rec, a) => {
@@ -410,21 +298,27 @@ function sectionAnchors(section) {
   return out;
 }
 
-function updateBulkCount(btn, anchors) {
-  if (btn.dataset.busy) return;
-  const pending = anchors.filter((a) => {
+function pendingOf(anchors) {
+  return anchors.filter((a) => {
     const rec = controls.get(a);
-    return rec && !rec.saved;
-  }).length;
+    return rec && !rec.saved && !rec.busy;
+  });
+}
 
-  // MutationObserver がこのボタンの変更でまた走るため、
-  // 実際に変化したときだけ DOM を書き換える（無限ループ防止）。
-  if (btn.dataset.pending === String(pending)) return;
-  btn.dataset.pending = String(pending);
-  btn.textContent = pending
-    ? `このセクションをまとめて保存 (${pending})`
-    : 'このセクションは保存済み';
-  btn.disabled = pending === 0;
+function setBulk(bulk, text, { disabled = false, busy = false } = {}) {
+  if (bulk.label === text && bulk.disabled === disabled && bulk.isBusy === busy) return;
+  Object.assign(bulk, { label: text, disabled, isBusy: busy });
+  bulk.btn.disabled = disabled;
+  bulk.btn.className = busy ? 'btn big busy' : 'btn big';
+  bulk.btn.replaceChildren(busy ? h('span', { class: 'spinner' }) : icon(disabled ? 'check' : 'download'), text);
+}
+
+function updateBulk(bulk, anchors) {
+  if (bulk.busy) return;
+  const pending = pendingOf(anchors).length;
+  setBulk(bulk, pending ? `このセクションをまとめて保存 (${pending})` : 'このセクションは保存済み', {
+    disabled: pending === 0,
+  });
 }
 
 function injectSectionButtons() {
@@ -440,27 +334,28 @@ function injectSectionButtons() {
   });
 
   groups.forEach((anchors, section) => {
-    let btn = section.querySelector('.moodrop-bulk-btn');
-    if (btn && btn.closest(SECTION_SELECTOR) !== section) btn = null; // 深いセクションのボタン
-    if (btn) {
-      updateBulkCount(btn, anchors);
+    let bulk = bulks.get(section);
+    if (bulk && bulk.host.isConnected) {
+      updateBulk(bulk, anchors);
       return;
     }
     if (anchors.length < 2) return;
 
-    btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'moodrop-bulk-btn';
+    const { host, root } = makeHost('moodrop-bulk');
+    const btn = h('button', { class: 'btn big', type: 'button' });
+    root.appendChild(btn);
+    bulk = { host, btn, busy: false };
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      runBulkSave(section, btn);
+      runBulkSave(section, bulk);
     });
-    updateBulkCount(btn, anchors);
+    bulks.set(section, bulk);
+    updateBulk(bulk, anchors);
 
     const heading = section.querySelector(SECTION_HEADING_SELECTOR);
-    if (heading) heading.insertAdjacentElement('afterend', btn);
-    else section.insertAdjacentElement('afterbegin', btn);
+    if (heading) heading.insertAdjacentElement('afterend', host);
+    else section.insertAdjacentElement('afterbegin', host);
   });
 }
 
@@ -473,7 +368,7 @@ function refreshSectionButtons() {
 }
 
 // 連続保存の共通ループ。戻り値: { done, failed: anchor[], cancelled }
-async function saveSequence(list, bulkBtn, label) {
+async function saveSequence(list, bulk, label) {
   const bulkCtx = { duplicateChoice: null };
   const failed = [];
   let done = 0;
@@ -485,91 +380,53 @@ async function saveSequence(list, bulkBtn, label) {
     if (!rec || rec.saved || rec.busy || !a.isConnected) continue;
 
     rec.busy = true;
-    rec.renderSaveButton();
-    const b = rec.wrap.querySelector('.moodrop-save-btn');
-    const set = (t, c) => {
-      if (!b) return;
-      b.textContent = t;
-      b.classList.remove(...BTN_STATES);
-      if (c) b.classList.add(c);
-    };
-    if (b) b.disabled = true;
-    set('保存中…', 'moodrop-loading');
-    if (bulkBtn) bulkBtn.textContent = `${label} ${i + 1}/${list.length}…`;
+    rec.showBusy('保存中…');
+    setBulk(bulk, `${label} ${i + 1}/${list.length}…`, { disabled: true, busy: true });
 
-    const r = await runSave(a, { onState: set, bulkCtx });
+    const r = await runSave(a, { onState: rec.showBusy, bulkCtx });
     rec.busy = false;
 
     if (r.ok) {
-      rec.renderSaved({
+      rec.showSaved({
         name: (r.file && r.file.name) || shortName(a) || '資料',
         path: (r.file && r.file.path) || '',
       });
       done++;
     } else if (r.benign) {
-      rec.renderSaveButton();
+      rec.showSave();
       cancelled = true;
       break;
     } else {
-      rec.renderSaveButton();
-      set('保存失敗', 'moodrop-error');
+      rec.showError();
       failed.push(a);
     }
   }
   return { done, failed, cancelled };
 }
 
-async function runBulkSave(section, btn) {
-  if (btn.dataset.busy) return;
-  btn.dataset.busy = '1';
-  btn.disabled = true;
-
-  const anchors = sectionAnchors(section);
-  const pending = anchors.filter((a) => {
-    const rec = controls.get(a);
-    return rec && !rec.saved && !rec.busy;
-  });
-
-  if (pending.length) {
-    const { done, failed, cancelled } = await saveSequence(pending, btn, '保存中');
-    if (cancelled) {
-      showToast({ message: `一括保存を中断しました（${done} 件保存）` });
-    } else if (failed.length) {
-      showToast({
-        message: `一括保存: ${done} 件成功 / ${failed.length} 件失敗`,
-        actionLabel: '失敗分を再試行',
-        onAction: () => retrySequence(failed, section, btn),
-      });
-    } else {
-      showToast({ message: `このセクションの資料 ${done} 件を保存しました` });
-    }
-  }
-
-  delete btn.dataset.busy;
-  updateBulkCount(btn, sectionAnchors(section));
-}
-
-async function retrySequence(list, section, btn) {
-  if (btn.dataset.busy) return;
-  btn.dataset.busy = '1';
-  btn.disabled = true;
-
-  const { done, failed, cancelled } = await saveSequence(list, btn, '再試行');
-
-  delete btn.dataset.busy;
-  updateBulkCount(btn, sectionAnchors(section));
+async function runBulk(section, bulk, list, label) {
+  if (bulk.busy) return;
+  bulk.busy = true;
+  const { done, failed, cancelled } = await saveSequence(list, bulk, label);
+  bulk.busy = false;
+  updateBulk(bulk, sectionAnchors(section));
 
   if (cancelled) {
-    showToast({ message: `再試行を中断しました（${done} 件保存）` });
+    toast({ message: `${label === '保存中' ? '一括保存' : '再試行'}を中断しました（${done} 件保存）` });
   } else if (failed.length) {
-    showToast({
-      message: `再試行: ${done} 件成功 / ${failed.length} 件失敗`,
-      actionLabel: 'もう一度',
-      onAction: () => retrySequence(failed, section, btn),
+    toast({
+      message: `${done} 件成功 / ${failed.length} 件失敗`,
+      actionLabel: '失敗分を再試行',
+      onAction: () => runBulk(section, bulk, failed, '再試行'),
     });
   } else {
-    showToast({ message: `再試行で ${done} 件を保存しました` });
+    toast({ message: `${done} 件の資料を保存しました` });
   }
+}
+
+function runBulkSave(section, bulk) {
+  const pending = pendingOf(sectionAnchors(section));
+  if (pending.length) runBulk(section, bulk, pending, '保存中');
 }
 
 /* ---------- ボタン注入 ---------- */
@@ -579,8 +436,6 @@ function injectButtons() {
   const fresh = [];
 
   anchors.forEach((a) => {
-    if (a.closest('.moodrop-modal-overlay')) return;
-    if (a.closest('.moodrop-toast-host')) return;
     if (!isTargetLink(a)) return;
 
     a.setAttribute(PROCESSED_ATTR, '1');
@@ -607,12 +462,12 @@ function injectButtons() {
 // 既に保存済みの資料は、ページを開いた時点で「保存済み」表示にする。
 function querySavedState(anchors) {
   const urls = anchors.map((a) => a.href);
-  chrome.runtime.sendMessage({ type: 'CHECK_SAVED', urls }, (resp) => {
-    if (chrome.runtime.lastError || !resp || resp.status !== 'ok') return;
+  request({ type: 'CHECK_SAVED', urls }).then((resp) => {
+    if (!resp || resp.status !== 'ok') return;
     anchors.forEach((a) => {
       const info = resp.saved[a.href];
       const rec = controls.get(a);
-      if (info && rec && !rec.busy && !rec.saved) rec.renderSaved(info);
+      if (info && rec && !rec.busy && !rec.saved) rec.showSaved(info);
     });
   });
 }
@@ -644,3 +499,4 @@ function startObserver() {
 
 injectButtons();
 startObserver();
+})();

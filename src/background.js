@@ -1,13 +1,15 @@
 // background.js
 // Moodleからファイルを取得し、選ばれたローカルフォルダへ書き込みます。
 
-import { sanitizeName, savedKey } from './lib/names.js';
+import { sanitizeName, savedKey, rankFolders } from './lib/names.js';
 import { fetchMoodleFile, parseFilenameFromDisposition } from './lib/moodle.js';
 import { exists, uniqueName, writeFile } from './lib/fs.js';
 import {
   getRootHandle,
   permissionOf,
-  courseDirName,
+  getCourseDirs,
+  setCourseDir,
+  getSettings,
   bumpRecent,
   getRecent,
   markSaved,
@@ -21,17 +23,64 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') chrome.tabs.create({ url: chrome.runtime.getURL(`${OPTIONS_PAGE}?welcome`) });
 });
 
+/* ---------- 保存先フォルダ ---------- */
+
+async function walk(root, path, create) {
+  let dir = root;
+  for (const seg of path) dir = await dir.getDirectoryHandle(seg, { create });
+  return dir;
+}
+
+async function listDirs(dir) {
+  const names = [];
+  for await (const [name, handle] of dir.entries()) {
+    if (handle.kind === 'directory' && !name.startsWith('.')) names.push(name);
+  }
+  return names.sort((a, b) => a.localeCompare(b));
+}
+
+// 科目に対応する保存先（ルートからのパス）を決める。
+// 未登録で自動作成もオフなら null を返し、ユーザーに選んでもらう。
+async function resolveCoursePath({ courseKey, courseName, dirPath }) {
+  if (dirPath) {
+    const path = dirPath.map((s) => sanitizeName(s, '無題')).slice(0, 8);
+    await setCourseDir(courseKey, path, courseName);
+    return path;
+  }
+  const entry = (await getCourseDirs())[courseKey];
+  if (entry && entry.path.length) return entry.path;
+  if ((await getSettings()).autoCreate) {
+    const path = [sanitizeName(courseName, '無題の科目')];
+    await setCourseDir(courseKey, path, courseName);
+    return path;
+  }
+  return null;
+}
+
 /* ---------- 保存 ---------- */
 
-async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDuplicate }) {
+async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDuplicate, dirPath }) {
   const root = await getRootHandle();
   if (!root) return { status: 'needs_setup' };
   if ((await permissionOf(root)) !== 'granted') return { status: 'needs_permission' };
 
-  const dirName = await courseDirName(courseKey, courseName, sanitizeName);
+  const path = await resolveCoursePath({ courseKey, courseName, dirPath });
+  if (!path) {
+    let existing = [];
+    try {
+      existing = await listDirs(root);
+    } catch { /* 一覧が取れなくても新規作成はできる */ }
+    return {
+      status: 'needs_folder',
+      suggested: sanitizeName(courseName, '無題の科目'),
+      matches: rankFolders(existing, courseName).slice(0, 5),
+      rootName: root.name,
+    };
+  }
+
   let dir;
   try {
-    dir = await root.getDirectoryHandle(dirName, { create: true });
+    dir = await walk(root, path, true);
   } catch (e) {
     if (e.name === 'NotFoundError') {
       return { status: 'needs_setup', message: '保存先フォルダが見つかりません。設定で選び直してください' };
@@ -54,10 +103,10 @@ async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDupli
 
   await writeFile(dir, filename, res.body);
 
-  const path = `${dirName}/${filename}`;
-  await bumpRecent({ name: filename, path, courseName: courseName || '', at: Date.now() });
-  await markSaved(savedKey(fileUrl), { name: filename, path });
-  return { status: 'ok', file: { name: filename, path } };
+  const shown = [...path, filename].join('/');
+  await bumpRecent({ name: filename, path: shown, courseName: courseName || '', at: Date.now() });
+  await markSaved(savedKey(fileUrl), { name: filename, path: shown });
+  return { status: 'ok', file: { name: filename, path: shown } };
 }
 
 /* ---------- フォルダへのアクセス許可 ---------- */
@@ -96,6 +145,13 @@ const handlers = {
       if (e && e.name === 'NotAllowedError') return { status: 'needs_permission' };
       throw e;
     }
+  },
+
+  async LIST_DIRS({ path }) {
+    const root = await getRootHandle();
+    if (!root || (await permissionOf(root)) !== 'granted') return { status: 'error', message: 'フォルダにアクセスできません' };
+    const dir = await walk(root, (path || []).slice(0, 8), false);
+    return { status: 'ok', dirs: await listDirs(dir) };
   },
 
   async REQUEST_GRANT() {

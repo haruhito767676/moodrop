@@ -1,21 +1,35 @@
-<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4c8dff"/>
-      <stop offset="1" stop-color="#1a63e0"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#7b86ff"/>
+      <stop offset="1" stop-color="#0a84ff"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" flood-color="#0a2a66" flood-opacity="0.25"/>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".28"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#e4ecff"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#cfdcff"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0b2a8a" flood-opacity=".28"/>
     </filter>
   </defs>
 
-  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
-  <rect x="4" y="4" width="120" height="120" rx="28" fill="#ffffff" opacity="0.06"/>
+  <rect x="48" y="48" width="928" height="928" rx="212" fill="url(#bg)"/>
+  <rect x="48" y="48" width="928" height="928" rx="212" fill="url(#gloss)"/>
 
-  <g filter="url(#shadow)" transform="translate(0,2)">
-    <!-- cloud -->
-    <path fill="#ffffff" d="M46 88c-11.6 0-21-9.4-21-21 0-10.8 8.1-19.7 18.6-20.9C46.9 36.5 56.3 30 67 30c12.9 0 23.6 9.5 25.4 21.9.5-.05 1-.08 1.6-.08 9.4 0 17 7.6 17 17s-7.6 17-17 17H46z"/>
-    <!-- upward arrow punched out of the cloud -->
-    <path fill="#1a63e0" d="M67.5 44 86 62.5a3.3 3.3 0 0 1-2.3 5.6H75v14a3.3 3.3 0 0 1-3.3 3.3h-8.4A3.3 3.3 0 0 1 60 82.1v-14h-8.7a3.3 3.3 0 0 1-2.3-5.6L67.5 44z"/>
+  <g filter="url(#soft)">
+    <!-- folder back -->
+    <path d="M206 470a46 46 0 0 1 46-46h138c16 0 30 7 40 19l24 30h266a46 46 0 0 1 46 46v262a46 46 0 0 1-46 46H252a46 46 0 0 1-46-46z" fill="#fff" fill-opacity=".4"/>
+    <!-- drop -->
+    <path d="M512 140c0 0-124 146-124 244a124 124 0 0 0 248 0c0-98-124-244-124-244z" fill="url(#drop)"/>
+    <!-- folder front -->
+    <path d="M206 586a46 46 0 0 1 46-46h520a46 46 0 0 1 46 46v200a46 46 0 0 1-46 46H252a46 46 0 0 1-46-46z" fill="url(#front)"/>
   </g>
 </svg>

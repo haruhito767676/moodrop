@@ -1,7 +1,25 @@
-import { getRootHandle, setRootHandle, permissionOf } from '../lib/store.js';
+import { getRootHandle, setRootHandle, permissionOf, getSettings, setSettings, getCourseDirs, forgetCourseDir } from '../lib/store.js';
 import { getSites, enableSite, disableSite, originOf } from '../lib/sites.js';
 
 const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+};
+
+/* ---------- ペイン切り替え ---------- */
+
+function showPane() {
+  const id = ['general', 'courses', 'sites'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'general';
+  document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.id !== id; });
+  document.querySelectorAll('.sidebar a').forEach((a) => {
+    if (a.dataset.pane === id) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+}
+window.addEventListener('hashchange', showPane);
 
 /* ---------- 保存先フォルダ ---------- */
 
@@ -49,34 +67,55 @@ $('regrant').addEventListener('click', async () => {
   await renderRoot();
 });
 
+/* ---------- 科目フォルダ ---------- */
+
+async function renderAuto() {
+  $('auto').checked = (await getSettings()).autoCreate;
+}
+$('auto').addEventListener('change', (e) => setSettings({ autoCreate: e.target.checked }));
+
+async function renderCourses() {
+  const box = $('course-list');
+  box.replaceChildren();
+  const entries = Object.entries(await getCourseDirs()).sort((a, b) => (b[1].at || 0) - (a[1].at || 0));
+  if (!entries.length) {
+    box.appendChild(el('div', 'empty-row', 'まだ保存した科目はありません'));
+    return;
+  }
+  for (const [key, val] of entries) {
+    const row = el('div', 'row');
+    const body = el('div', 'grow');
+    body.append(el('div', 'title', val.courseName || val.path[val.path.length - 1]), el('div', 'path', val.path.join(' / ')));
+    const btn = el('button', null, '選び直す');
+    btn.type = 'button';
+    btn.addEventListener('click', async () => {
+      await forgetCourseDir(key);
+      renderCourses();
+    });
+    row.append(body, btn);
+    box.appendChild(row);
+  }
+}
+
 /* ---------- Moodleサイト ---------- */
 
 async function renderSites() {
   const sites = await getSites();
-  const box = $('sites');
-  box.textContent = '';
+  const box = $('site-list');
+  box.replaceChildren();
   if (!sites.length) {
-    const row = document.createElement('div');
-    row.className = 'row';
-    row.innerHTML = '<span class="muted">まだ登録されていません</span>';
-    box.appendChild(row);
+    box.appendChild(el('div', 'empty-row', 'まだ登録されていません'));
     return;
   }
   for (const origin of sites) {
-    const row = document.createElement('div');
-    row.className = 'row';
-    const name = document.createElement('div');
-    name.className = 'grow title';
-    name.textContent = origin.replace(/^https?:\/\//, '');
-    const rm = document.createElement('button');
+    const row = el('div', 'row');
+    const rm = el('button', 'danger', '解除');
     rm.type = 'button';
-    rm.className = 'danger';
-    rm.textContent = '解除';
     rm.addEventListener('click', async () => {
       await disableSite(origin);
       renderSites();
     });
-    row.append(name, rm);
+    row.append(el('div', 'grow title', origin.replace(/^https?:\/\//, '')), rm);
     box.appendChild(row);
   }
 }
@@ -97,5 +136,8 @@ $('site-add').addEventListener('click', async () => {
   }
 });
 
+showPane();
 renderRoot();
+renderAuto();
+renderCourses();
 renderSites();

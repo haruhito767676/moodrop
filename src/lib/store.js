@@ -35,17 +35,42 @@ export async function setRootHandle(handle) {
 
 export const permissionOf = (handle) => handle.queryPermission({ mode: 'readwrite' });
 
-/* ---------- 科目 → フォルダ名 ---------- */
+/* ---------- 設定 ---------- */
 
-// 科目名はMoodle側で変わる（年度の付け替えなど）ことがあるので、
-// 最初に使った名前を科目IDに紐づけて固定する。
-export async function courseDirName(courseKey, courseName, sanitize) {
+const DEFAULT_SETTINGS = { autoCreate: false };
+
+export async function getSettings() {
+  const { settings } = await chrome.storage.local.get('settings');
+  return { ...DEFAULT_SETTINGS, ...(settings || {}) };
+}
+
+export async function setSettings(patch) {
+  await chrome.storage.local.set({ settings: { ...(await getSettings()), ...patch } });
+}
+
+/* ---------- 科目 → 保存先フォルダ ---------- */
+
+// 保存先ルートからのフォルダ名の配列で持つ（ハンドルは持たないので、許可はルートの1回で済む）。
+// 形式: { [courseKey]: { path: string[], courseName, at } }
+export async function getCourseDirs() {
   const { courseDirs = {} } = await chrome.storage.local.get('courseDirs');
-  if (courseDirs[courseKey]) return courseDirs[courseKey];
-  const name = sanitize(courseName, '無題の科目');
-  courseDirs[courseKey] = name;
+  // 旧形式（フォルダ名の文字列）を読み替える
+  for (const [k, v] of Object.entries(courseDirs)) {
+    if (typeof v === 'string') courseDirs[k] = { path: [v], courseName: '', at: 0 };
+  }
+  return courseDirs;
+}
+
+export async function setCourseDir(courseKey, path, courseName) {
+  const courseDirs = await getCourseDirs();
+  courseDirs[courseKey] = { path, courseName: courseName || '', at: Date.now() };
   await chrome.storage.local.set({ courseDirs });
-  return name;
+}
+
+export async function forgetCourseDir(courseKey) {
+  const courseDirs = await getCourseDirs();
+  delete courseDirs[courseKey];
+  await chrome.storage.local.set({ courseDirs });
 }
 
 /* ---------- 保存履歴 ---------- */
