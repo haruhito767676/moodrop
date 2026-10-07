@@ -213,34 +213,33 @@ function makeControl(anchor) {
     fn();
   };
 
+  const label = (text) => h('span', { class: 'lbl' }, text);
+
   rec.showSave = () => {
     ctl.replaceChildren(
-      h('button', { class: 'btn', type: 'button', title: 'この資料を科目フォルダに保存', onclick: stop(() => startSingleSave(anchor, rec)) },
-        icon('download'), '保存')
+      h('button', { class: 'btn', type: 'button', title: 'この資料を科目フォルダに保存', 'aria-label': 'この資料を保存', onclick: stop(() => startSingleSave(anchor, rec)) },
+        icon('download'), label('保存'))
     );
   };
 
   rec.showBusy = (text) => {
     ctl.replaceChildren(
       h('button', { class: 'btn busy', type: 'button', disabled: true, 'aria-live': 'polite' },
-        h('span', { class: 'spinner' }), text)
+        h('span', { class: 'spinner' }), label(text))
     );
   };
 
-  rec.showError = (text = '保存失敗') => {
+  rec.showError = (text = '失敗') => {
     ctl.replaceChildren(
-      h('button', { class: 'btn err', type: 'button', title: 'クリックで再試行', onclick: stop(() => startSingleSave(anchor, rec)) }, text)
+      h('button', { class: 'btn err', type: 'button', title: 'クリックで再試行', onclick: stop(() => startSingleSave(anchor, rec)) },
+        icon('retry'), label(text))
     );
-  };
-
-  rec.showMessage = (text) => {
-    ctl.replaceChildren(h('button', { class: 'btn busy', type: 'button', disabled: true }, text));
   };
 
   rec.showSaved = (info) => {
     rec.saved = info;
     ctl.replaceChildren(
-      h('span', { class: 'saved', title: info.path ? `保存先: ${info.path}` : info.name || '' }, icon('check'), '保存済み'),
+      h('span', { class: 'saved', title: info.path ? `保存済み: ${info.path}` : '保存済み', role: 'img', 'aria-label': '保存済み' }, icon('check')),
       h('button', { class: 'icon-btn', type: 'button', title: 'もう一度保存する', 'aria-label': 'もう一度保存する', onclick: stop(() => startSingleSave(anchor, rec)) },
         icon('retry'))
     );
@@ -313,8 +312,8 @@ function setBulk(bulk, text, { disabled = false, busy = false } = {}) {
   if (bulk.label === text && bulk.disabled === disabled && bulk.isBusy === busy) return;
   Object.assign(bulk, { label: text, disabled, isBusy: busy });
   bulk.btn.disabled = disabled;
-  bulk.btn.className = busy ? 'btn big busy' : 'btn big';
-  bulk.btn.replaceChildren(busy ? h('span', { class: 'spinner' }) : icon(disabled ? 'check' : 'download'), text);
+  bulk.btn.className = busy ? 'btn soft busy' : 'btn soft';
+  bulk.btn.replaceChildren(busy ? h('span', { class: 'spinner' }) : icon(disabled ? 'check' : 'download'), h('span', { class: 'lbl' }, text));
 }
 
 function updateBulk(bulk, anchors) {
@@ -346,7 +345,7 @@ function injectSectionButtons() {
     if (anchors.length < 2) return;
 
     const { host, root } = makeHost('moodrop-bulk');
-    const btn = h('button', { class: 'btn big', type: 'button' });
+    const btn = h('button', { class: 'btn soft', type: 'button' });
     root.appendChild(btn);
     bulk = { host, btn, busy: false };
     btn.addEventListener('click', (e) => {
@@ -435,6 +434,64 @@ function runBulkSave(section, bulk) {
 
 /* ---------- ボタン注入 ---------- */
 
+const ROW_SELECTOR = '.activity-item, li.activity, li.modtype_resource';
+const ACTIONS_SELECTOR =
+  '.activity-actions, [data-region="activity-actions"], .actions, .actionmenu, .action-menu, .completion-info';
+
+// 行ごとに、コントロールの縦位置（リンクの中心）と右端の余白（Moodle自身の操作ボタンを避ける）を測り直す
+const rowLayouts = new Map(); // row -> Set<{anchor, host}>
+const rowObserver = new ResizeObserver((entries) => {
+  entries.forEach((e) => layoutRow(e.target));
+});
+
+function layoutRow(row) {
+  const items = rowLayouts.get(row);
+  if (!items) return;
+  const rowRect = row.getBoundingClientRect();
+  if (!rowRect.width) return;
+
+  let right = 12;
+  const actions = row.querySelector(ACTIONS_SELECTOR);
+  if (actions) {
+    const r = actions.getBoundingClientRect();
+    if (r.width && r.left > rowRect.left + rowRect.width / 2) right = Math.max(12, rowRect.right - r.left + 8);
+  }
+  items.forEach(({ anchor, host }) => {
+    const r = anchor.getBoundingClientRect();
+    host.style.setProperty('--right', `${right}px`);
+    if (r.height) host.style.setProperty('--top', `${r.top + r.height / 2 - rowRect.top - row.clientTop}px`);
+    else host.style.removeProperty('--top');
+  });
+}
+
+function placeControl(anchor, rec) {
+  const row = anchor.closest(ROW_SELECTOR);
+  if (!row) {
+    // 行の構造が分からないページでは、リンクの直後に置く
+    rec.wrap.dataset.layout = 'inline';
+    (anchor.closest('.activityname') || anchor).insertAdjacentElement('afterend', rec.wrap);
+    return;
+  }
+
+  rec.wrap.dataset.layout = 'row';
+  row.classList.add('moodrop-host');
+  if (getComputedStyle(row).position === 'static') row.style.position = 'relative';
+  row.appendChild(rec.wrap);
+
+  if (!rowLayouts.has(row)) {
+    rowLayouts.set(row, new Set());
+    rowObserver.observe(row);
+    // 行にポインタを乗せたとき（またはキーボードで触れたとき）だけ、アイコンを強調する
+    const hot = (on) => rowLayouts.get(row).forEach(({ host }) => host.toggleAttribute('data-hot', on));
+    row.addEventListener('pointerenter', () => hot(true));
+    row.addEventListener('pointerleave', () => hot(false));
+    row.addEventListener('focusin', () => hot(true));
+    row.addEventListener('focusout', () => hot(false));
+  }
+  rowLayouts.get(row).add({ anchor, host: rec.wrap });
+  layoutRow(row);
+}
+
 function injectButtons() {
   const anchors = document.querySelectorAll(`a:not([${PROCESSED_ATTR}])`);
   const fresh = [];
@@ -444,18 +501,9 @@ function injectButtons() {
 
     a.setAttribute(PROCESSED_ATTR, '1');
 
-    // Moodle Boost は行全体をクリック可能にする透明オーバーレイ
-    // （a.stretched-link::after）を敷く。これがボタンを覆って押せなくなるので、
-    // ボタンを置いた行にマークを付けて CSS 側でそのオーバーレイを無効化する。
-    const host = a.closest('.activity-item, .activityinstance, li.activity, .course-content li');
-    if (host) host.classList.add('moodrop-host');
-
     const rec = makeControl(a);
     controls.set(a, rec);
-
-    // stretched-link の内側（<a>直後）ではなく、その外側に置く
-    const insertAfter = a.closest('.activityname') || a;
-    insertAfter.insertAdjacentElement('afterend', rec.wrap);
+    placeControl(a, rec);
     fresh.push(a);
   });
 

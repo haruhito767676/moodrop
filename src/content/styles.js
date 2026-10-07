@@ -1,5 +1,6 @@
 // Shadow DOM 内に差し込むスタイル（Moodle側のCSSから隔離するため、ここに持つ）
 const DARK = `  --accent: #0a84ff;
+  --accent-ink: #64a8ff;
   --accent-soft: rgba(10, 132, 255, 0.22);
   --accent-soft-hover: rgba(10, 132, 255, 0.32);
   --ok: #30d158;
@@ -18,6 +19,7 @@ globalThis.MOODROP_CSS = `
   all: initial;
   --accent: #0a84ff;
   --accent-hover: #0071e3;
+  --accent-ink: #0071e3;
   --accent-soft: rgba(10, 132, 255, 0.12);
   --accent-soft-hover: rgba(10, 132, 255, 0.2);
   --ok: #248a3d;
@@ -49,13 +51,22 @@ ${DARK}
 button { font: inherit; color: inherit; }
 svg { display: block; flex: none; }
 
-/* ---------- 資料の横のコントロール ---------- */
+/* ---------- 資料の行のコントロール ---------- */
 
-:host(moodrop-ui) {
+/* 行の右端に置く（位置は content.js が測って --top / --right に入れる） */
+:host([data-layout="row"]) {
+  position: absolute;
+  top: var(--top, 50%);
+  right: var(--right, 12px);
+  transform: translateY(-50%);
+  z-index: 5;
+}
+/* 行の構造が分からないときは、リンクの直後に置く */
+:host([data-layout="inline"]) {
   display: inline-block;
   position: relative;
   z-index: 5;
-  margin-left: 8px;
+  margin-left: 6px;
   vertical-align: middle;
 }
 :host(moodrop-bulk) {
@@ -64,36 +75,69 @@ svg { display: block; flex: none; }
   z-index: 5;
   margin: 6px 0 10px;
 }
-.ctl { display: inline-flex; align-items: center; gap: 4px; }
+.ctl { display: inline-flex; align-items: center; gap: 2px; }
 
+/* 普段は薄いアイコンだけ。行にポインタを乗せる（data-hot）か、ボタン自体に触れると色とラベルが出る */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 24px;
-  padding: 0 10px 0 8px;
+  gap: 0;
+  height: 26px;
+  padding: 0 6px;
   border: 0;
   border-radius: 7px;
-  background: var(--accent);
-  color: #fff;
+  background: transparent;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.01em;
-  box-shadow: 0 0.5px 1.5px rgba(0, 60, 160, 0.35);
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
 }
-.btn:hover { background: var(--accent-hover); }
-.btn:active { transform: scale(0.97); }
+.btn .lbl {
+  max-width: 0;
+  margin-left: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.18s ease, margin 0.18s ease, opacity 0.15s;
+}
+:host([data-hot]) .btn:not(.busy):not(.err),
+.btn:hover,
+.btn:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+:host([data-hot]) .btn .lbl,
+.btn:hover .lbl,
+.btn:focus-visible .lbl {
+  max-width: 80px;
+  margin-left: 5px;
+  opacity: 1;
+}
+.btn:hover { background: var(--accent-soft-hover); }
+.btn:active { transform: scale(0.96); }
 .btn:focus-visible, .icon-btn:focus-visible, .seg button:focus-visible, .row:focus-visible, .field:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-.btn.busy { cursor: default; background: var(--fill); color: var(--muted); box-shadow: none; }
+/* 進行中・失敗は、ポインタに関係なくラベルを出して状態を伝える */
+.btn.busy, .btn.err { padding: 0 9px 0 7px; cursor: default; }
+.btn.busy .lbl, .btn.err .lbl { max-width: none; margin-left: 5px; opacity: 1; }
+.btn.busy { background: var(--fill); color: var(--muted); }
 .btn.busy:active { transform: none; }
-.btn.err { background: var(--danger-soft); color: var(--danger); box-shadow: none; }
-.btn.big { height: 28px; padding: 0 14px 0 11px; font-size: 13px; border-radius: 8px; }
+.btn.err { background: var(--danger-soft); color: var(--danger); cursor: pointer; }
+/* セクションの一括保存は、ラベル付きの控えめなボタン */
+.btn.soft {
+  height: 28px;
+  padding: 0 12px 0 9px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 13px;
+}
+.btn.soft .lbl { max-width: none; margin-left: 6px; opacity: 1; }
+.btn.soft:hover { background: var(--accent-soft-hover); }
+.btn.soft:disabled { background: var(--fill); color: var(--muted); cursor: default; }
+.btn.soft.busy { background: var(--fill); color: var(--muted); }
 
 .spinner {
   width: 12px; height: 12px;
@@ -105,31 +149,30 @@ svg { display: block; flex: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .saved {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 9px 0 7px;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
-  background: var(--ok-soft);
   color: var(--ok);
-  font-size: 12px;
-  font-weight: 500;
   cursor: default;
 }
 .icon-btn {
   display: inline-grid;
   place-items: center;
-  width: 24px; height: 24px;
+  width: 26px; height: 26px;
   padding: 0;
   border: 0;
   border-radius: 7px;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  opacity: 0.7;
-  transition: background 0.15s, opacity 0.15s;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: background 0.15s, opacity 0.15s, width 0.15s;
 }
+:host([data-hot]) .icon-btn, .icon-btn:focus-visible { opacity: 0.8; width: 26px; }
 .icon-btn:hover { background: var(--fill); opacity: 1; }
 
 /* ---------- 重ね合わせ（シート・アラート・通知） ---------- */
