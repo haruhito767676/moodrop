@@ -75,6 +75,13 @@ svg { display: block; flex: none; }
   z-index: 5;
   margin: 6px 0 10px;
 }
+:host(moodrop-bulk[data-layout="heading"]) {
+  position: absolute;
+  top: 50%;
+  right: var(--right, 12px);
+  transform: translateY(-50%);
+  margin: 0;
+}
 .ctl { display: inline-flex; align-items: center; gap: 2px; }
 
 /* 普段は薄いアイコンだけ。行にポインタを乗せる（data-hot）か、ボタン自体に触れると色とラベルが出る */
@@ -126,18 +133,49 @@ svg { display: block; flex: none; }
 .btn.busy { background: var(--fill); color: var(--muted); }
 .btn.busy:active { transform: none; }
 .btn.err { background: var(--danger-soft); color: var(--danger); cursor: pointer; }
-/* セクションの一括保存は、ラベル付きの控えめなボタン */
-.btn.soft {
+/* セクションの一括保存（見出しの右端）。標準的なグレーのボタンに、件数のバッジ */
+.bulk {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 28px;
-  padding: 0 12px 0 9px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
-  font-size: 13px;
+  padding: 0 7px 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--fill);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
 }
-.btn.soft .lbl { max-width: none; margin-left: 6px; opacity: 1; }
-.btn.soft:hover { background: var(--accent-soft-hover); }
-.btn.soft:disabled { background: var(--fill); color: var(--muted); cursor: default; }
-.btn.soft.busy { background: var(--fill); color: var(--muted); }
+.bulk > svg, .bulk > span:first-child > svg { color: var(--accent-ink); }
+.bulk:hover { background: var(--fill-hover); }
+.bulk:active { transform: scale(0.97); }
+.bulk:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bulk .count {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.bulk.busy {
+  cursor: default;
+  color: var(--accent-ink);
+  padding-right: 10px;
+  background: linear-gradient(90deg, var(--accent-soft-hover) var(--p, 0%), var(--fill) var(--p, 0%));
+  transition: none;
+}
+.bulk.done { padding: 0 8px 0 6px; background: transparent; color: var(--ok); cursor: default; }
+.bulk.done > svg, .bulk.done > span:first-child > svg { color: var(--ok); }
 
 .spinner {
   width: 12px; height: 12px;

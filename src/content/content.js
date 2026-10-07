@@ -308,20 +308,69 @@ function pendingOf(anchors) {
   });
 }
 
-function setBulk(bulk, text, { disabled = false, busy = false } = {}) {
-  if (bulk.label === text && bulk.disabled === disabled && bulk.isBusy === busy) return;
-  Object.assign(bulk, { label: text, disabled, isBusy: busy });
-  bulk.btn.disabled = disabled;
-  bulk.btn.className = busy ? 'btn soft busy' : 'btn soft';
-  bulk.btn.replaceChildren(busy ? h('span', { class: 'spinner' }) : icon(disabled ? 'check' : 'download'), h('span', { class: 'lbl' }, text));
+// state: { kind: 'idle' | 'busy' | 'done', count, done, total }
+function setBulk(bulk, state) {
+  const key = JSON.stringify(state);
+  if (bulk.key === key) return;
+  bulk.key = key;
+  const { btn } = bulk;
+
+  if (state.kind === 'done') {
+    btn.className = 'bulk done';
+    btn.disabled = true;
+    btn.replaceChildren(icon('check'), h('span', {}, 'すべて保存済み'));
+  } else if (state.kind === 'busy') {
+    btn.className = 'bulk busy';
+    btn.disabled = true;
+    btn.style.setProperty('--p', `${Math.round((state.done / state.total) * 100)}%`);
+    btn.replaceChildren(h('span', { class: 'spinner' }), h('span', {}, `保存中 ${state.done}/${state.total}`));
+  } else {
+    btn.className = 'bulk';
+    btn.disabled = false;
+    btn.style.removeProperty('--p');
+    btn.replaceChildren(icon('download'), h('span', {}, 'すべて保存'), h('span', { class: 'count' }, String(state.count)));
+  }
 }
 
 function updateBulk(bulk, anchors) {
   if (bulk.busy) return;
   const pending = pendingOf(anchors).length;
-  setBulk(bulk, pending ? `このセクションをまとめて保存 (${pending})` : 'このセクションは保存済み', {
-    disabled: pending === 0,
-  });
+  setBulk(bulk, pending ? { kind: 'idle', count: pending } : { kind: 'done' });
+}
+
+// セクション見出しの右端に置く（Moodle自身の操作ボタンは避ける）
+const headingLayouts = new Map(); // heading -> Set<host>
+const headingObserver = new ResizeObserver((entries) => entries.forEach((e) => layoutHeading(e.target)));
+
+function layoutHeading(heading) {
+  const hosts = headingLayouts.get(heading);
+  const rect = heading.getBoundingClientRect();
+  if (!hosts || !rect.width) return;
+  let right = 12;
+  const actions = heading.querySelector(ACTIONS_SELECTOR);
+  if (actions) {
+    const r = actions.getBoundingClientRect();
+    if (r.width && r.left > rect.left + rect.width / 2) right = Math.max(12, rect.right - r.left + 8);
+  }
+  hosts.forEach((host) => host.style.setProperty('--right', `${right}px`));
+}
+
+function placeBulk(section, host) {
+  const heading = section.querySelector(SECTION_HEADING_SELECTOR);
+  if (!heading) {
+    host.dataset.layout = 'block';
+    section.insertAdjacentElement('afterbegin', host);
+    return;
+  }
+  host.dataset.layout = 'heading';
+  if (getComputedStyle(heading).position === 'static') heading.style.position = 'relative';
+  heading.appendChild(host);
+  if (!headingLayouts.has(heading)) {
+    headingLayouts.set(heading, new Set());
+    headingObserver.observe(heading);
+  }
+  headingLayouts.get(heading).add(host);
+  layoutHeading(heading);
 }
 
 function injectSectionButtons() {
@@ -345,7 +394,7 @@ function injectSectionButtons() {
     if (anchors.length < 2) return;
 
     const { host, root } = makeHost('moodrop-bulk');
-    const btn = h('button', { class: 'btn soft', type: 'button' });
+    const btn = h('button', { class: 'bulk', type: 'button' });
     root.appendChild(btn);
     bulk = { host, btn, busy: false };
     btn.addEventListener('click', (e) => {
@@ -356,9 +405,7 @@ function injectSectionButtons() {
     bulks.set(section, bulk);
     updateBulk(bulk, anchors);
 
-    const heading = section.querySelector(SECTION_HEADING_SELECTOR);
-    if (heading) heading.insertAdjacentElement('afterend', host);
-    else section.insertAdjacentElement('afterbegin', host);
+    placeBulk(section, host);
   });
 }
 
@@ -384,7 +431,7 @@ async function saveSequence(list, bulk, label) {
 
     rec.busy = true;
     rec.showBusy('保存中…');
-    setBulk(bulk, `${label} ${i + 1}/${list.length}…`, { disabled: true, busy: true });
+    setBulk(bulk, { kind: 'busy', done: i, total: list.length });
 
     const r = await runSave(a, { onState: rec.showBusy, bulkCtx });
     rec.busy = false;
@@ -436,7 +483,7 @@ function runBulkSave(section, bulk) {
 
 const ROW_SELECTOR = '.activity-item, li.activity, li.modtype_resource';
 const ACTIONS_SELECTOR =
-  '.activity-actions, [data-region="activity-actions"], .actions, .actionmenu, .action-menu, .completion-info';
+  '.activity-actions, [data-region="activity-actions"], .section-actions, .actions, .actionmenu, .action-menu, .completion-info';
 
 // 行ごとに、コントロールの縦位置（リンクの中心）と右端の余白（Moodle自身の操作ボタンを避ける）を測り直す
 const rowLayouts = new Map(); // row -> Set<{anchor, host}>
