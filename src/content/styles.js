@@ -214,6 +214,7 @@ svg { display: block; flex: none; }
 .alert .m { margin: 4px 0 14px; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
 .alert .stack { display: grid; gap: 6px; }
 .alert .stack .pbtn, .alert .stack .sbtn { width: 100%; height: 30px; }
+.alert .m.hint { margin-top: -8px; font-size: 11px; opacity: 0.85; }
 .check { display: flex; align-items: center; justify-content: center; gap: 6px; margin: -4px 0 12px; font-size: 12px; color: var(--muted); cursor: pointer; }
 .check input { margin: 0; accent-color: var(--accent); }
 

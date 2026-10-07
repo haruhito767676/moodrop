@@ -62,7 +62,7 @@ async function resolveCoursePath({ courseKey, courseName, dirPath }) {
 async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDuplicate, dirPath }) {
   const root = await getRootHandle();
   if (!root) return { status: 'needs_setup' };
-  if ((await permissionOf(root)) !== 'granted') return { status: 'needs_permission' };
+  if ((await permissionOf(root)) !== 'granted') return { status: 'needs_permission', rootName: root.name };
 
   const path = await resolveCoursePath({ courseKey, courseName, dirPath });
   if (!path) {

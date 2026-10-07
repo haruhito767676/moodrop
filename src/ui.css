@@ -57,6 +57,8 @@ p { margin: 0 0 10px; }
 
 button, .button {
   font: inherit;
+  white-space: nowrap;
+  flex: none;
   cursor: pointer;
   border: 0;
   border-radius: 8px;

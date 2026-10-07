@@ -18,7 +18,8 @@ main h1 { font-size: 22px; letter-spacing: -0.02em; margin: 0 0 4px; }
 .pane h2:first-of-type { margin-top: 18px; }
 .hint { margin: 8px 4px 0; }
 .lead { margin: 0 4px 14px; }
-.add { display: flex; gap: 8px; padding: 12px 14px; border-top: 0.5px solid var(--line); }
+.add { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 0.5px solid var(--line); }
+.add input { flex: 1; width: auto; min-width: 0; }
 .empty-row { padding: 18px 14px; color: var(--muted); text-align: center; }
 
 .switch {

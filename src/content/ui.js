@@ -179,6 +179,35 @@ globalThis.MoodropUI = (() => {
     });
   }
 
+  /* ---------- 保存先フォルダへのアクセス再確認 ---------- */
+
+  // 戻り値: 許可の手続きに進むなら true、キャンセルなら false
+  function permissionAlert(rootName) {
+    return new Promise((resolve) => {
+      let modal = null;
+      const done = (v) => {
+        modal.close();
+        resolve(v);
+      };
+      const go = h('button', { class: 'pbtn', type: 'button', onclick: () => done(true) }, '許可する');
+      const box = h(
+        'div',
+        { class: 'alert', role: 'alertdialog', 'aria-label': '保存先フォルダへのアクセスを再確認' },
+        appIcon(),
+        h('div', { class: 't' }, '保存先フォルダへのアクセスを再確認'),
+        h(
+          'div',
+          { class: 'm' },
+          `ブラウザを再起動したあとなどは、保存先フォルダ${rootName ? `「${rootName}」` : ''}へのアクセスをもう一度許可する必要があります。`
+        ),
+        h('div', { class: 'm hint' }, '許可の画面で「サイトを開くたびに許可」を選ぶと、次回から表示されません。'),
+        h('div', { class: 'stack' }, go, h('button', { class: 'sbtn', type: 'button', onclick: () => done(false) }, 'キャンセル'))
+      );
+      modal = openModal(box, { center: true, onDismiss: () => resolve(false) });
+      go.focus();
+    });
+  }
+
   /* ---------- 保存先フォルダのシート ---------- */
 
   // 戻り値: 保存先のパス（ルートからのフォルダ名の配列）または null
@@ -317,5 +346,5 @@ globalThis.MoodropUI = (() => {
     });
   }
 
-  return { h, icon, makeHost, request, toast, duplicateAlert, folderSheet };
+  return { h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet };
 })();

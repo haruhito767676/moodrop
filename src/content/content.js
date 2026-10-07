@@ -6,7 +6,7 @@
 if (window.__moodropLoaded) return; // 登録済みスクリプトと即時注入が重なっても二重に動かさない
 window.__moodropLoaded = true;
 
-const { h, icon, makeHost, request, toast, duplicateAlert, folderSheet } = MoodropUI;
+const { h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet } = MoodropUI;
 
 const PROCESSED_ATTR = 'data-moodrop-btn-added';
 
@@ -158,9 +158,13 @@ async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
 
     if (resp.status === 'needs_permission') {
       setState('許可を確認…');
+      if (!(await permissionAlert(resp.rootName))) {
+        return { ok: false, benign: true, message: '保存先フォルダへのアクセスの許可をキャンセルしました' };
+      }
       const grant = await request({ type: 'REQUEST_GRANT' });
       if (!grant || grant.status !== 'ok') {
-        return { ok: false, benign: true, message: '保存先フォルダへのアクセス許可がキャンセルされました' };
+        // 許可ウィンドウが閉じられた／拒否された。黙って消えないよう、エラーとして知らせる。
+        return { ok: false, message: '保存先フォルダへのアクセスが許可されませんでした。もう一度お試しください' };
       }
       setState('保存中…');
       continue;

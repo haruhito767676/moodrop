@@ -5,13 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Moodrop</title>
   <link rel="stylesheet" href="../ui.css" />
+  <style>
+    body.grant { display: grid; place-items: center; min-height: 100vh; text-align: center; }
+    body.grant main { max-width: 360px; padding: 24px; }
+    .app { width: 64px; height: 64px; border-radius: 15px; margin-bottom: 12px; }
+    h1 { font-size: 17px; }
+    #allow { margin: 12px 0 14px; padding: 8px 28px; font-size: 14px; }
+    #msg { color: var(--danger); min-height: 1.4em; }
+  </style>
 </head>
 <body class="grant">
   <main>
+    <img class="app" src="../../icons/icon128.png" alt="" />
     <h1>保存先フォルダへのアクセスを許可</h1>
-    <p>ブラウザを再起動したあとなどは、保存先フォルダ <b id="name">…</b> へのアクセスをもう一度確認する必要があります。</p>
+    <p>保存先フォルダ <b id="name">…</b> へのアクセスを、もう一度確認します。下のボタンを押して、表示される確認で「許可」を選んでください。</p>
     <button id="allow" class="primary" type="button">許可する</button>
-    <p class="hint">確認ダイアログで「サイトを開くたびに許可」を選ぶと、次回から表示されません。</p>
+    <p class="hint">確認で「サイトを開くたびに許可」を選ぶと、次回から表示されません。</p>
     <p id="msg" class="hint"></p>
   </main>
   <script type="module" src="grant.js"></script>
