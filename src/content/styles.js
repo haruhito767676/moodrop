@@ -1,4 +1,18 @@
 // Shadow DOM 内に差し込むスタイル（Moodle側のCSSから隔離するため、ここに持つ）
+const DARK = `  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.22);
+  --accent-soft-hover: rgba(10, 132, 255, 0.32);
+  --ok: #30d158;
+  --danger: #ff453a;
+  --text: #f5f5f7;
+  --muted: #a1a1a6;
+  --fill: rgba(235, 235, 245, 0.12);
+  --fill-hover: rgba(235, 235, 245, 0.2);
+  --line: rgba(255, 255, 255, 0.14);
+  --glass: rgba(44, 44, 46, 0.78);
+  --glass-solid: #2c2c2e;
+  --shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.16), 0 12px 40px rgba(0, 0, 0, 0.5);`;
+
 globalThis.MOODROP_CSS = `
 :host {
   all: initial;
@@ -22,21 +36,13 @@ globalThis.MOODROP_CSS = `
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
+/* 暗い配色: 重ね合わせ（シート・通知）はOSの設定、ページ上のボタンはページ自体の明暗に合わせる */
+:host([data-theme="dark"]) {
+${DARK}
+}
 @media (prefers-color-scheme: dark) {
-  :host {
-    --accent: #0a84ff;
-    --accent-soft: rgba(10, 132, 255, 0.22);
-    --accent-soft-hover: rgba(10, 132, 255, 0.32);
-    --ok: #30d158;
-    --danger: #ff453a;
-    --text: #f5f5f7;
-    --muted: #a1a1a6;
-    --fill: rgba(235, 235, 245, 0.12);
-    --fill-hover: rgba(235, 235, 245, 0.2);
-    --line: rgba(255, 255, 255, 0.14);
-    --glass: rgba(44, 44, 46, 0.78);
-    --glass-solid: #2c2c2e;
-    --shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.16), 0 12px 40px rgba(0, 0, 0, 0.5);
+  :host(moodrop-layer) {
+${DARK}
   }
 }
 * { box-sizing: border-box; }
@@ -68,25 +74,25 @@ svg { display: block; flex: none; }
   padding: 0 10px 0 8px;
   border: 0;
   border-radius: 7px;
-  background: var(--accent-soft);
-  color: var(--accent-hover);
+  background: var(--accent);
+  color: #fff;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.01em;
+  box-shadow: 0 0.5px 1.5px rgba(0, 60, 160, 0.35);
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
-@media (prefers-color-scheme: dark) { .btn { color: #64a8ff; } }
-.btn:hover { background: var(--accent-soft-hover); }
+.btn:hover { background: var(--accent-hover); }
 .btn:active { transform: scale(0.97); }
 .btn:focus-visible, .icon-btn:focus-visible, .seg button:focus-visible, .row:focus-visible, .field:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-.btn.busy { cursor: default; background: var(--fill); color: var(--muted); }
+.btn.busy { cursor: default; background: var(--fill); color: var(--muted); box-shadow: none; }
 .btn.busy:active { transform: none; }
-.btn.err { background: var(--danger-soft); color: var(--danger); }
+.btn.err { background: var(--danger-soft); color: var(--danger); box-shadow: none; }
 .btn.big { height: 28px; padding: 0 14px 0 11px; font-size: 13px; border-radius: 8px; }
 
 .spinner {
@@ -165,7 +171,7 @@ svg { display: block; flex: none; }
 .head { padding: 18px 20px 12px; }
 .title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 .sub { margin-top: 2px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
-.body { padding: 0 20px; overflow: auto; }
+.body { padding: 2px 20px 6px; overflow: auto; flex: 1 1 auto; min-height: 0; }
 .foot {
   display: flex;
   align-items: center;

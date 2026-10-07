@@ -44,8 +44,21 @@ globalThis.MoodropUI = (() => {
   const icon = (name) => h('span', { html: ICONS[name], style: 'display:inline-flex' });
   const appIcon = () => h('div', { class: 'app', html: APP_ICON });
 
+  // ページ自体が暗い配色かどうか（OSの設定ではなく、Moodleの背景色で決める）
+  function pageIsDark() {
+    for (let n = document.body; n; n = n.parentElement) {
+      const m = getComputedStyle(n).backgroundColor.match(/[\d.]+/g);
+      if (m && (m.length < 4 || Number(m[3]) > 0.5)) {
+        const [r, g, b] = m.map(Number);
+        return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.45;
+      }
+    }
+    return false;
+  }
+
   function makeHost(tag) {
     const host = document.createElement(tag);
+    if (tag !== 'moodrop-layer' && pageIsDark()) host.dataset.theme = 'dark';
     const root = host.attachShadow({ mode: 'closed' });
     root.appendChild(h('style', {}, globalThis.MOODROP_CSS));
     return { host, root };
@@ -188,6 +201,7 @@ globalThis.MoodropUI = (() => {
       const list = h('div', { class: 'list', role: 'listbox' });
       const nameField = h('input', { class: 'field', type: 'text', value: suggested, 'aria-label': 'フォルダ名' });
       const nameLabel = h('div', { class: 'label' }, '新しいフォルダの名前');
+      const placeLabel = h('div', { class: 'label', style: 'margin:0 0 6px 6px' }, '作成する場所（フォルダをクリックで移動）');
       const primary = h('button', { class: 'pbtn', type: 'button' });
       const cancel = h('button', { class: 'sbtn', type: 'button', onclick: () => finish(null) }, 'キャンセル');
 
@@ -272,6 +286,7 @@ globalThis.MoodropUI = (() => {
         renderCrumbs();
         renderList();
         nameField.style.display = nameLabel.style.display = mode === 'new' ? '' : 'none';
+        placeLabel.style.display = mode === 'new' ? '' : 'none';
         if (mode === 'new') {
           const n = nameField.value.trim();
           primary.textContent = '作成して保存';
@@ -293,7 +308,7 @@ globalThis.MoodropUI = (() => {
         'div',
         { class: 'window', role: 'dialog', 'aria-label': '保存先を選ぶ' },
         h('div', { class: 'head' }, h('div', { class: 'title' }, 'この科目の保存先'), h('div', { class: 'sub' }, courseName)),
-        h('div', { class: 'body' }, seg, crumbs, list, nameLabel, nameField),
+        h('div', { class: 'body' }, seg, placeLabel, crumbs, list, nameLabel, nameField),
         h('div', { class: 'foot' }, h('span', { class: 'spacer' }), cancel, primary)
       );
       modal = openModal(win, { onDismiss: () => resolve(null) });
