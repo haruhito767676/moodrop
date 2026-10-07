@@ -6,6 +6,8 @@ globalThis.MoodropUI = (() => {
 
   const ICONS = {
     download: SVG('<path d="M8 2.5v7.5M4.8 7.2 8 10.4l3.2-3.2M3 13.2h10"/>', { w: 13 }),
+    // 塗りつぶしの緑の丸に白いチェック（保存済みの目印）
+    saved: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="m4.6 8.3 2.3 2.3 4.5-5" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     check: SVG('<path d="m3.5 8.5 3 3 6-7"/>', { w: 13 }),
     retry: SVG('<path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v3h-3"/>', { w: 13 }),
     chevron: SVG('<path d="m6 3.5 4.5 4.5L6 12.5"/>', { w: 12, sw: 1.8 }),

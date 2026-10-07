@@ -187,14 +187,25 @@ svg { display: block; flex: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .saved {
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
+  display: inline-flex;
+  align-items: center;
   height: 26px;
+  padding: 0 5px;
   border-radius: 7px;
   color: var(--ok);
   cursor: default;
 }
+.saved .lbl {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  font-size: 12px;
+  font-weight: 500;
+  transition: max-width 0.18s ease, margin 0.18s ease, opacity 0.15s;
+}
+:host([data-hot]) .saved .lbl, .saved:hover .lbl { max-width: 200px; margin-right: 6px; opacity: 1; }
 .icon-btn {
   display: inline-grid;
   place-items: center;

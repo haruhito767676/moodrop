@@ -238,8 +238,10 @@ function makeControl(anchor) {
 
   rec.showSaved = (info) => {
     rec.saved = info;
+    const folder = info.path ? info.path.split('/').slice(0, -1).join('/') : '';
     ctl.replaceChildren(
-      h('span', { class: 'saved', title: info.path ? `保存済み: ${info.path}` : '保存済み', role: 'img', 'aria-label': '保存済み' }, icon('check')),
+      h('span', { class: 'saved', title: info.path ? `保存済み: ${info.path}` : '保存済み', role: 'img', 'aria-label': '保存済み' },
+        h('span', { class: 'lbl' }, folder ? `保存済み ・ ${folder}` : '保存済み'), icon('saved')),
       h('button', { class: 'icon-btn', type: 'button', title: 'もう一度保存する', 'aria-label': 'もう一度保存する', onclick: stop(() => startSingleSave(anchor, rec)) },
         icon('retry'))
     );
