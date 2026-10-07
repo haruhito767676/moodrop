@@ -45,3 +45,5 @@ main h1 { font-size: 22px; letter-spacing: -0.02em; margin: 0 0 4px; }
   .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; }
   .brand { width: 100%; padding-bottom: 8px; }
 }
+
+.sidebar .side-foot { margin-top: auto; color: var(--muted); font-size: 12px; }

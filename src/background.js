@@ -20,9 +20,10 @@ import {
 
 const GRANT_PAGE = 'src/grant/grant.html';
 const OPTIONS_PAGE = 'src/options/options.html';
+const WELCOME_PAGE = 'src/welcome/welcome.html';
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
-  if (reason === 'install') chrome.tabs.create({ url: chrome.runtime.getURL(`${OPTIONS_PAGE}?welcome`) });
+  if (reason === 'install') chrome.tabs.create({ url: chrome.runtime.getURL(WELCOME_PAGE) });
   // 更新・再読み込みのあとも、登録済みサイトで確実に動くようにスクリプトを登録し直す
   ensureSiteScripts({ force: true }).catch((e) => console.warn('[Moodrop]', e));
 });
