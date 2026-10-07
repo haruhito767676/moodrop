@@ -109,3 +109,9 @@ export async function lookupSaved(keysByUrl) {
   }
   return out;
 }
+
+export async function forgetSaved(keys) {
+  const { savedFiles = {} } = await chrome.storage.local.get('savedFiles');
+  keys.forEach((k) => delete savedFiles[k]);
+  await chrome.storage.local.set({ savedFiles });
+}

@@ -37,3 +37,17 @@ test('extractRealFileLink prefers pluginfile.php and resolves relative URLs', ()
 test('extractRealFileLink returns null when nothing matches', () => {
   assert.equal(extractRealFileLink('<p>none</p>', 'https://m.example/'), null);
 });
+
+import { filenameFromUrl } from '../src/lib/moodle.js';
+
+test('filenameFromUrl takes the decoded last path segment when it has an extension', () => {
+  assert.equal(
+    filenameFromUrl('https://m.example/pluginfile.php/5/mod_resource/content/1/%E8%AC%9B%E7%BE%A9.pdf?forcedownload=1'),
+    '講義.pdf'
+  );
+});
+
+test('filenameFromUrl returns empty for pages without a file-like name', () => {
+  assert.equal(filenameFromUrl('https://m.example/mod/resource/view.php?id=3'), '');
+  assert.equal(filenameFromUrl('not a url'), '');
+});

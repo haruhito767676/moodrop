@@ -37,3 +37,16 @@ export async function writeFile(dir, name, body) {
     throw e;
   }
 }
+
+// ルートからのパス（フォルダ名…, ファイル名）にファイルがあるか。フォルダの作成はしない。
+export async function existsAtPath(root, segments) {
+  try {
+    let dir = root;
+    for (const seg of segments.slice(0, -1)) dir = await dir.getDirectoryHandle(seg);
+    await dir.getFileHandle(segments[segments.length - 1]);
+    return true;
+  } catch (e) {
+    if (e.name === 'NotFoundError' || e.name === 'TypeMismatchError') return false;
+    throw e;
+  }
+}

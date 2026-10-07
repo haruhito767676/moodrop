@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Moodrop",
   "version": "2.0.0",
+  "minimum_chrome_version": "111",
   "description": "Moodleの資料をワンクリックで、科目ごとのフォルダに保存します。",
   "icons": {
     "16": "icons/icon16.png",

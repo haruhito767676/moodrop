@@ -50,8 +50,34 @@ export function extractRealFileLink(html, baseUrl) {
   return candidate;
 }
 
+// 最終的なURLの末尾（pluginfile.php/.../講義資料.pdf）にファイル名があれば取り出す。
+// Content-Disposition がないときの、リンクの文言（拡張子がない）よりも確かな手がかり。
+export function filenameFromUrl(url) {
+  try {
+    const last = new URL(url).pathname.split('/').filter(Boolean).pop() || '';
+    const name = decodeURIComponent(last);
+    return /\.[A-Za-z0-9]{1,8}$/.test(name) && !/\.php$/i.test(name) ? name : '';
+  } catch {
+    return '';
+  }
+}
+
+// 応答（ヘッダー）が来るまでだけ待つ。本文のダウンロードには時間制限をかけない。
+async function fetchWithHeaderTimeout(url, ms = 30000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { credentials: 'include', redirect: 'follow', signal: controller.signal });
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('Moodleからの応答がありません（タイムアウト）');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function fetchMoodleFile(fileUrl) {
-  let res = await fetch(fileUrl, { credentials: 'include', redirect: 'follow' });
+  let res = await fetchWithHeaderTimeout(fileUrl);
   if (!res.ok) throw new Error(`Moodleからのファイル取得に失敗しました (${res.status})`);
 
   const contentType = (res.headers.get('Content-Type') || '').toLowerCase();
@@ -61,7 +87,7 @@ export async function fetchMoodleFile(fileUrl) {
     if (!real || real === fileUrl) {
       throw new Error('資料の実ファイルURLを特定できませんでした（Moodleのテーマ差の可能性があります）');
     }
-    res = await fetch(real, { credentials: 'include', redirect: 'follow' });
+    res = await fetchWithHeaderTimeout(real);
     if (!res.ok) throw new Error(`Moodleからのファイル取得に失敗しました (${res.status})`);
   }
   return res;

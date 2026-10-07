@@ -47,7 +47,14 @@ globalThis.MoodropUI = (() => {
   const appIcon = () => h('div', { class: 'app', html: APP_ICON });
 
   // ページ自体が暗い配色かどうか（OSの設定ではなく、Moodleの背景色で決める）
+  let darkMemo = { at: 0, value: false };
   function pageIsDark() {
+    const now = Date.now();
+    if (now - darkMemo.at < 2000) return darkMemo.value; // 資料の数だけ測り直さない
+    darkMemo = { at: now, value: measureDark() };
+    return darkMemo.value;
+  }
+  function measureDark() {
     for (let n = document.body; n; n = n.parentElement) {
       const m = getComputedStyle(n).backgroundColor.match(/[\d.]+/g);
       if (m && (m.length < 4 || Number(m[3]) > 0.5)) {

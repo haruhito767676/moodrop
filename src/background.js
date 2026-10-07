@@ -2,8 +2,8 @@
 // Moodleからファイルを取得し、選ばれたローカルフォルダへ書き込みます。
 
 import { sanitizeName, savedKey, rankFolders } from './lib/names.js';
-import { fetchMoodleFile, parseFilenameFromDisposition } from './lib/moodle.js';
-import { exists, uniqueName, writeFile } from './lib/fs.js';
+import { fetchMoodleFile, parseFilenameFromDisposition, filenameFromUrl } from './lib/moodle.js';
+import { exists, existsAtPath, uniqueName, writeFile } from './lib/fs.js';
 import { ensureSiteScripts } from './lib/sites.js';
 import {
   getRootHandle,
@@ -15,6 +15,7 @@ import {
   getRecent,
   markSaved,
   lookupSaved,
+  forgetSaved,
 } from './lib/store.js';
 
 const GRANT_PAGE = 'src/grant/grant.html';
@@ -97,8 +98,12 @@ async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDupli
   }
 
   const res = await fetchMoodleFile(fileUrl);
+  // ファイル名は Content-Disposition → 最終URLの末尾 → リンクの文言 の順で決める
   let filename = sanitizeName(
-    parseFilenameFromDisposition(res.headers.get('Content-Disposition'), suggestedName)
+    parseFilenameFromDisposition(
+      res.headers.get('Content-Disposition'),
+      filenameFromUrl(res.url) || suggestedName
+    )
   );
 
   if (await exists(dir, filename)) {
@@ -145,8 +150,15 @@ function requestGrant() {
 
 /* ---------- メッセージ処理 ---------- */
 
+// 保存を頼めるのは、そのMoodle自身のページからだけ（別オリジンのURLは取りに行かない）
+function assertSameOrigin(fileUrl, sender) {
+  const from = sender && sender.url && new URL(sender.url).origin;
+  if (!from || new URL(fileUrl).origin !== from) throw new Error('このページ以外のURLは保存できません');
+}
+
 const handlers = {
-  async SAVE_FILE(msg) {
+  async SAVE_FILE(msg, sender) {
+    assertSameOrigin(msg.fileUrl, sender);
     try {
       return await saveFile(msg);
     } catch (e) {
@@ -177,14 +189,33 @@ const handlers = {
 
   async CHECK_SAVED({ urls }) {
     const keys = Object.fromEntries((urls || []).map((u) => [u, savedKey(u)]));
-    return { status: 'ok', saved: await lookupSaved(keys) };
+    const saved = await lookupSaved(keys);
+
+    // 手元で消された（動かされた）ファイルは、保存済みから外す（確認できるのはアクセス許可があるときだけ）
+    const root = await getRootHandle();
+    if (root && (await permissionOf(root)) === 'granted') {
+      const gone = [];
+      await Promise.all(
+        Object.entries(saved).map(async ([url, info]) => {
+          try {
+            if (info.path && !(await existsAtPath(root, info.path.split('/')))) {
+              gone.push(keys[url]);
+              delete saved[url];
+            }
+          } catch { /* 確認できなければ、保存済みのままにしておく */ }
+        })
+      );
+      if (gone.length) await forgetSaved(gone);
+    }
+    return { status: 'ok', saved };
   },
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const handler = msg && handlers[msg.type];
   if (!handler) return false;
-  handler(msg)
+  Promise.resolve()
+    .then(() => handler(msg, sender))
     .then(sendResponse)
     .catch((e) => sendResponse({ status: 'error', message: (e && e.message) || String(e) }));
   return true; // 非同期で sendResponse を使うために必須
