@@ -42,6 +42,11 @@ a { color: var(--accent-ink); text-decoration: none; }
 a:hover { text-decoration: underline; }
 img { max-width: 100%; }
 h1, h2, .lead, .sub { text-wrap: balance; }
+.ph { display: inline-block; }
+:lang(ja) { word-break: auto-phrase; line-break: strict; }
+:lang(ja) h1 { max-width: 22em; }
+:lang(ja) .lead { max-width: 40em; }
+:lang(ja) .sub { max-width: 40em; }
 .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
 
 /* nav */
