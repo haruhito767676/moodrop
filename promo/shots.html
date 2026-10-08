@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Moodrop screenshot stage</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1440px; height: 810px; overflow: hidden; background: #000; }
+  body { position: relative; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Hiragino Sans", sans-serif; color: #f5f5f7; -webkit-font-smoothing: antialiased; }
+  #wall { position: absolute; inset: 0; background:
+      radial-gradient(900px 520px at 12% 8%, rgba(10,132,255,.30), transparent 62%),
+      radial-gradient(800px 520px at 92% 96%, rgba(123,92,255,.28), transparent 62%), #050507; }
+  .win { position: absolute; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 0 0 .5px rgba(255,255,255,.16), 0 40px 90px rgba(0,0,0,.65); }
+  .bar { height: 42px; background: #e4e5e9; display: flex; align-items: center; gap: 12px; padding: 0 14px; }
+  .tl { display: flex; gap: 8px; } .tl i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; } .tl i:nth-child(2) { background: #febc2e; } .tl i:nth-child(3) { background: #28c840; }
+  .tab { margin-left: 8px; align-self: flex-end; height: 32px; padding: 0 18px; border-radius: 9px 9px 0 0; background: #f4f5f7; color: #1d2125; font-size: 12.5px; display: flex; align-items: center; gap: 8px; }
+  .tab img { width: 14px; height: 14px; border-radius: 3px; }
+  iframe { display: block; width: 100%; border: 0; background: #1c1c1e; }
+  #pop { border-radius: 14px; }
+  #label { position: absolute; left: 0; right: 0; bottom: 26px; text-align: center; font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: rgba(245,245,247,.85); }
+</style>
+</head>
+<body>
+<div id="wall"></div>
+<div id="root"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const p = q.get('p'), lang = q.get('lang') || 'en', hash = q.get('hash') || '', qs = q.get('qs') || '', label = q.get('label') || '';
+const title = { options: lang === 'ja' ? 'Moodrop 設定' : 'Moodrop Settings', welcome: lang === 'ja' ? 'Moodrop へようこそ' : 'Welcome to Moodrop' };
+const src = `/promo/ext.html?p=${p}&lang=${lang}&qs=${encodeURIComponent(qs)}${hash ? '#' + hash : ''}`;
+const root = document.getElementById('root');
+if (p === 'popup') {
+  root.innerHTML = `<div id="pop" class="win" style="left:540px;top:150px;width:360px;height:500px"><iframe src="${src}" style="height:500px"></iframe></div>`;
+} else {
+  const w = p === 'welcome' ? 880 : 1100, h = p === 'welcome' ? 640 : 640;
+  root.innerHTML = `<div class="win" style="left:${(1440 - w) / 2}px;top:70px;width:${w}px;height:${h}px"><div class="bar"><div class="tl"><i></i><i></i><i></i></div><div class="tab"><img src="/icons/icon48.png" alt="">${title[p]}</div></div><iframe src="${src}" style="height:${h - 42}px"></iframe></div>`;
+}
+if (label) root.insertAdjacentHTML('beforeend', `<div id="label">${label}</div>`);
+window.__ready = new Promise((r) => document.querySelector('iframe').addEventListener('load', () => setTimeout(r, 1400)));
+</script>
+</body>
+</html>

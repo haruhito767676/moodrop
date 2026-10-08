@@ -33,3 +33,7 @@ build/
 .env
 .env.*
 secrets.json
+
+# promo: 録画の途中経過（完成品は docs/media にある）
+promo/.tmp/
+promo/out/

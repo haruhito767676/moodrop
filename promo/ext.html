@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ext page loader (promo)</title>
+<script>
+// 拡張機能自身のページを、API を模擬した環境で表示するための入れ物（録画・スクリーンショット用）
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const p = q.get('p'), lang = q.get('lang') || 'en', extra = q.get('qs') || '';
+  const xhr = new XMLHttpRequest(); xhr.open('GET', '/_locales/' + lang + '/messages.json', false); xhr.send();
+  const msgs = JSON.parse(xhr.responseText);
+  const ja = lang === 'ja';
+  const course = ja ? '情報工学I' : 'Intro to Computing';
+  const now = Date.now();
+  const store = {
+    sites: ['https://moodle.example.ac.jp'],
+    settings: { autoCreate: false },
+    courseDirs: {
+      'course-5': { path: [course], courseName: course, at: now - 1000 },
+      'course-7': { path: [ja ? '線形代数' : 'Linear Algebra'], courseName: ja ? '線形代数' : 'Linear Algebra', at: now - 90000 },
+      'course-9': { path: [ja ? '2026年度 後期' : '2026 Fall', ja ? '物理学' : 'Physics'], courseName: ja ? '物理学' : 'Physics', at: now - 400000 },
+    },
+    recentSaves: [
+      { name: ja ? '演習問題 第1回.pdf' : 'Exercises 1.pdf', courseName: course, at: now - 60000 },
+      { name: ja ? '講義資料 第1回.pdf' : 'Lecture 1.pdf', courseName: course, at: now - 3600000 },
+      { name: ja ? '行列の基礎.pdf' : 'Matrices basics.pdf', courseName: ja ? '線形代数' : 'Linear Algebra', at: now - 86400000 },
+    ],
+  };
+  if (p === 'welcome') { delete store.sites; delete store.courseDirs; }
+  window.chrome = {
+    i18n: { getMessage(k, s = []) { const m = msgs[k]; return m ? m.message.replace(/\$(\d)/g, (_, i) => s[i - 1] ?? '') : ''; }, getUILanguage: () => lang },
+    storage: { local: { async get(k) { const o = {}; (Array.isArray(k) ? k : [k]).forEach((x) => { if (x in store) o[x] = JSON.parse(JSON.stringify(store[x])); }); return o; }, async set(o) { Object.assign(store, o); }, async remove(ks) { [].concat(ks).forEach((k) => delete store[k]); } } },
+    permissions: { async request() { return true; }, async remove() {}, async contains() { return true; } },
+    scripting: { async unregisterContentScripts() {}, async registerContentScripts() {}, async getRegisteredContentScripts() { return []; }, async executeScript() { return [{ result: true }]; } },
+    tabs: { async query() { return [{ id: 1, url: 'https://moodle.example.ac.jp/course/view.php?id=5' }]; }, async create() {}, async getCurrent() { return null; }, async remove() {} },
+    runtime: { lastError: null, openOptionsPage() {}, getURL: (x) => x, sendMessage(m, cb) { const r = { recent: store.recentSaves }; if (cb) setTimeout(() => cb(r)); else return Promise.resolve(r); } },
+  };
+  window.showDirectoryPicker = async () => (await navigator.storage.getDirectory()).getDirectoryHandle(ja ? '大学' : 'University', { create: true });
+  if (p !== 'welcome') {
+    const { setRootHandle } = await import('/src/lib/store.js');
+    await setRootHandle(await window.showDirectoryPicker());
+  }
+  const html = await (await fetch(`/src/${p}/${p}.html`)).text();
+  const withBase = html.replace('<head>', `<head><base href="/src/${p}/">`);
+  document.open(); document.write(withBase); document.close();
+  if (location.hash) setTimeout(() => dispatchEvent(new HashChangeEvent('hashchange')), 300);
+})();
+</script>

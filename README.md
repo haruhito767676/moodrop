@@ -18,23 +18,62 @@ No accounts, no cloud API setup, and nothing leaves your browser.
 
 <br>
 
-> **Status:** Moodrop is in active development and is not on the Chrome Web Store yet. For now, [install it from source](#install). Screenshots and a demo video are coming.
+> **Status:** Moodrop is in active development and is not on the Chrome Web Store yet. For now, [install it from source](#install).
 
 > Moodrop is an unofficial tool and is not affiliated with Moodle Pty Ltd. "Moodle" is a trademark of Moodle Pty Ltd.
+
+<p align="center"><img src="docs/media/clip-one-en.webp" width="820" alt="Hovering a file in Moodle shows a Save button; one click saves it, and it lands in a folder on the computer"></p>
+<p align="center"><sub>Watch the 38-second demo: <a href="docs/media/demo-en.mp4">demo-en.mp4</a></sub></p>
 
 ---
 
 ## What Moodrop does
 
-- **One-click save.** A quiet icon appears at the right edge of every file on a Moodle course page. Hover a row and it turns into a **Save** button.
-- **Save a whole section.** Each section header gets a **Save all** button with a counter, a progress bar while it runs, and a retry for anything that failed.
-- **Organized by course.** Files go into `<your folder>/<course>/…`. The first time you save from a course, you choose an existing folder or create a new one (or let Moodrop name it after the course automatically).
+### Hover. Click. Saved.
+
+A quiet icon sits at the right edge of every file on a Moodle course page. Hover a row and it turns into a **Save** button. One click, and the file is in your folder. Files you already saved get a green check.
+
+### Save a whole section
+
+Each section header gets a **Save all** button with a counter. While it runs, the button becomes a progress bar; if anything fails, you can retry just those files.
+
+<p align="center"><img src="docs/media/clip-all-en.webp" width="820" alt="Pressing Save all saves every file in the section, with a progress bar, and the files appear in the folder"></p>
+
+### Pick a folder once
+
+Files go into `<your folder>/<course>/…`. The first time you save from a course, choose an existing folder (Moodrop suggests the one with a similar name) or create a new one. After that, every file from that course goes to the same place with no questions asked. You can also let Moodrop name folders after your courses automatically.
+
+<p align="center"><img src="docs/media/clip-folder-en.webp" width="820" alt="The first save from a course opens a sheet to choose a folder; the next file is saved straight to the same folder"></p>
+
+### And more
+
 - **Any folder, including cloud folders.** Pick a folder synced by Google Drive, OneDrive, Box, or iCloud and it just works. No API keys and no sign-in, because Moodrop only writes to a folder on your computer.
-- **Knows what you already have.** Saved files get a green check. If you delete a file, the check goes away.
+- **Knows what you already have.** If you delete a file, its green check goes away.
 - **Duplicates handled.** If a file with the same name exists, choose **Keep both** or **Replace**, and apply the choice to the rest of a bulk save.
 - **Works with your Moodle.** Not tied to one school. You enable it for the Moodle sites you use.
 - **Private by design.** Files go from Moodle straight to your folder. See [Privacy](PRIVACY.md).
 - **English and Japanese**, following your browser language.
+
+### Screens
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/shot-welcome-en.png" alt="Welcome screen with three steps"></td>
+<td width="50%"><img src="docs/media/shot-settings-en.png" alt="Settings: save folder and course folders"></td>
+</tr>
+<tr>
+<td align="center"><sub>A short welcome walks you through setup</sub></td>
+<td align="center"><sub>Settings</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/media/shot-courses-en.png" alt="Settings: where each course is saved"></td>
+<td width="50%"><img src="docs/media/shot-popup-en.png" alt="Toolbar popup with recent saves"></td>
+</tr>
+<tr>
+<td align="center"><sub>Where each course is saved</sub></td>
+<td align="center"><sub>The toolbar popup</sub></td>
+</tr>
+</table>
 
 ## Install
 

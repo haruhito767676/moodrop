@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Course page (promo stage)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 -apple-system, "Segoe UI", Roboto, "Hiragino Sans", sans-serif; color: #1d2125; background: #f4f5f7; }
+  a { color: #0f6cbf; text-decoration: none; }
+  .nav { height: 46px; background: #fff; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 22px; padding: 0 18px; font-size: 13.5px; }
+  .nav .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #1d2125; }
+  .nav .logo i { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, #0f6cbf, #5aa7e8); }
+  .nav a { color: #495057; }
+  .nav .sp { flex: 1; }
+  .nav .av { width: 26px; height: 26px; border-radius: 50%; background: #c9d6e6; }
+  .wrap { padding: 16px 28px 40px; }
+  .breadcrumb ol { display: flex; gap: 6px; list-style: none; margin: 0 0 6px; padding: 0; font-size: 12.5px; color: #6a737b; }
+  .breadcrumb li + li::before { content: "/"; margin-right: 6px; color: #adb5bd; }
+  h1 { font-size: 25px; margin: 2px 0 14px; font-weight: 600; letter-spacing: -.01em; }
+  .course-content { list-style: none; margin: 0; padding: 0; }
+  li.section { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px 16px 14px; margin-bottom: 14px; list-style: none; }
+  .course-section-header { display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
+  h3.sectionname { margin: 0; font-size: 17px; font-weight: 600; }
+  .section-actions { color: #6a737b; padding: 0 10px; }
+  ul.acts { list-style: none; margin: 8px 0 0; padding: 0; }
+  li.activity { margin: 0; list-style: none; }
+  .activity-item { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-top: 1px solid #edf0f2; }
+  li.activity:first-child .activity-item { border-top: 0; }
+  .ftype { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font-size: 9.5px; font-weight: 700; color: #fff; flex: none; }
+  .ftype.pdf { background: #e5484d; } .ftype.ppt { background: #f08a24; } .ftype.doc { background: #3b82f6; }
+  .activity-basis { flex: 1; min-width: 0; }
+  .activityname a { font-size: 14.5px; }
+  .activity-actions { display: flex; align-items: center; gap: 14px; color: #6a737b; }
+  .ring { width: 20px; height: 20px; border: 2px solid #adb5bd; border-radius: 50%; }
+</style>
+</head>
+<body class="course-5">
+<script>
+// 録画用: Shadow DOM を開いて、ドライバーから位置を測れるようにする（本物の拡張機能では closed）
+const _attach = Element.prototype.attachShadow;
+Element.prototype.attachShadow = function (init) { return _attach.call(this, { ...init, mode: 'open' }); };
+
+(() => {
+  const q = new URLSearchParams(location.search);
+  const lang = q.get('lang') || 'en';
+  const scene = q.get('scene') || 'one';
+  document.documentElement.lang = lang;
+
+  const xhr = new XMLHttpRequest(); xhr.open('GET', '/_locales/' + lang + '/messages.json', false); xhr.send();
+  const msgs = JSON.parse(xhr.responseText);
+  const T = lang === 'ja' ? {
+    course: '情報工学I', root: '大学', univ: '東都大学',
+    nav: ['ダッシュボード', 'マイコース', 'カレンダー'], crumb: ['ホーム', 'マイコース'],
+    w1: '第1回', w2: '第2回',
+    files1: [['講義資料 第1回.pdf', 'pdf'], ['演習問題 第1回.pdf', 'pdf'], ['参考スライド.pptx', 'ppt']],
+    files2: [['講義資料 第2回.pdf', 'pdf'], ['課題シート.docx', 'doc']],
+    dirs: ['情報工学I', '線形代数', '体育', '2026年度 後期'],
+  } : {
+    course: 'Intro to Computing', root: 'University', univ: 'Example University',
+    nav: ['Dashboard', 'My courses', 'Calendar'], crumb: ['Home', 'My courses'],
+    w1: 'Week 1', w2: 'Week 2',
+    files1: [['Lecture 1.pdf', 'pdf'], ['Exercises 1.pdf', 'pdf'], ['Reference slides.pptx', 'ppt']],
+    files2: [['Lecture 2.pdf', 'pdf'], ['Assignment sheet.docx', 'doc']],
+    dirs: ['Intro to Computing', 'Linear Algebra', 'Physical Education', '2026 Fall'],
+  };
+  window.__T = T;
+
+  // ---- ページ ----
+  const row = (id, [name, kind]) => `<li class="activity modtype_resource"><div class="activity-item"><span class="ftype ${kind}">${kind.toUpperCase()}</span><div class="activity-basis"><span class="activityname"><a href="/mod/resource/view.php?id=${id}">${name}</a></span></div><div class="activity-actions"><span class="ring"></span><span>⋮</span></div></div></li>`;
+  const sec = (title, files, base) => `<li class="section course-section"><div class="course-section-header"><h3 class="sectionname">${title}</h3><div class="section-actions">⋮</div></div><ul class="acts">${files.map((f, i) => row(base + i, f)).join('')}</ul></li>`;
+  document.body.insertAdjacentHTML('afterbegin', `
+    <div class="nav"><span class="logo"><i></i>${T.univ}</span>${T.nav.map((n) => `<a href="#">${n}</a>`).join('')}<span class="sp"></span><span class="av"></span></div>
+    <div class="wrap" id="page-content">
+      <nav class="breadcrumb"><ol><li><a href="#">${T.crumb[0]}</a></li><li><a href="#">${T.crumb[1]}</a></li><li><a href="/course/view.php?id=5">${T.course}</a></li></ol></nav>
+      <h1>${T.course}</h1>
+      <ul class="course-content">${sec(T.w1, T.files1, 11)}${scene === 'all' || scene === 'folder' ? '' : sec(T.w2, T.files2, 21)}</ul>
+    </div>`);
+
+  // ---- 拡張機能の API の模擬 ----
+  let mapped = scene !== 'folder';
+  const savedAtStart = scene === 'one' ? { 'http://localhost/mod/resource/view.php?id=11': 1 } : {};
+  const tree = { '': T.dirs, [T.dirs[3]]: [lang === 'ja' ? '物理学' : 'Physics', lang === 'ja' ? '化学' : 'Chemistry'] };
+  window.chrome = {
+    i18n: {
+      getMessage(k, subs = []) { const m = msgs[k]; return m ? m.message.replace(/\$(\d)/g, (_, i) => subs[i - 1] ?? '') : ''; },
+      getUILanguage: () => lang,
+    },
+    runtime: {
+      lastError: null,
+      sendMessage(m, cb) {
+        const reply = (r, ms = 40) => setTimeout(() => cb && cb(r), ms);
+        if (m.type === 'CHECK_SAVED') {
+          const saved = {};
+          (m.urls || []).forEach((u) => { if (/id=11$/.test(u) && scene === 'one') saved[u] = { name: T.files1[0][0], path: `${T.course}/${T.files1[0][0]}` }; });
+          return reply({ status: 'ok', saved });
+        }
+        if (m.type === 'SAVE_FILE') {
+          if (!mapped && !m.dirPath) return reply({ status: 'needs_folder', suggested: T.course, matches: [T.course], rootName: T.root }, 60);
+          mapped = true;
+          const folder = (m.dirPath || [T.course]).join('/');
+          const name = m.suggestedName;
+          return setTimeout(() => {
+            parent.postMessage({ type: 'saved', name, folder }, '*');
+            cb && cb({ status: 'ok', file: { name, path: `${folder}/${name}` } });
+          }, 900 + (name.length % 5) * 90);
+        }
+        if (m.type === 'LIST_DIRS') return reply({ status: 'ok', dirs: tree[(m.path || []).join('/')] || [] });
+        reply({ status: 'ok' });
+      },
+    },
+  };
+})();
+</script>
+<script src="/src/content/styles.js"></script>
+<script src="/src/content/ui.js"></script>
+<script src="/src/content/content.js"></script>
+</body>
+</html>
