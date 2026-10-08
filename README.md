@@ -1,29 +1,110 @@
+<div align="center">
+
+<img src="assets/icon-1024.png" width="112" alt="Moodrop">
+
 # Moodrop
 
-Moodleの資料を、ワンクリックで好きなフォルダへ。
+**Save Moodle course files to any folder with one click.**
 
-> Moodle 用の非公式ツールです。Moodle Pty Ltd とは関係ありません。
+A small Chrome extension that puts a save button next to the files in Moodle and drops them into per-course folders on your computer.<br>
+No accounts, no cloud API setup, and nothing leaves your browser.
 
-**開発中です。** 2.0 でGoogleドライブ連携をやめ、ローカルフォルダへの保存に作り直しています。
+[![Chrome](https://img.shields.io/badge/Chrome-111%2B-0a84ff)](#requirements)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
-## 仕組み
+[日本語](README.ja.md) · [Privacy](PRIVACY.md)
 
-- 保存先に **ローカルのフォルダ** を1つ選ぶだけ。科目ごとのサブフォルダ（`保存先/科目名/資料.pdf`）を自動で作ります。
-- Google ドライブ / OneDrive / Box / iCloud などはデスクトップアプリの同期フォルダを選べば、そのまま使えます。API の設定やログインは不要です。
-- 使うMoodleサイトは、ツールバーの Moodrop から自分で有効にします（特定の大学に固定されません）。
-- 資料の取得も保存も、すべてあなたのブラウザの中で完結します。外部サーバーには何も送りません。
+</div>
 
-## 開発用の読み込み方
+<br>
 
-1. `chrome://extensions` を開き、右上の「デベロッパー モード」をオン
-2. 「パッケージ化されていない拡張機能を読み込む」でこのフォルダを選ぶ
-3. 開いた設定ページで保存先フォルダを選ぶ
-4. Moodleのページでツールバーの Moodrop を押し、「有効にする」
+> **Status:** Moodrop is in active development and is not on the Chrome Web Store yet. For now, [install it from source](#install). Screenshots and a demo video are coming.
 
-```sh
-npm test
+> Moodrop is an unofficial tool and is not affiliated with Moodle Pty Ltd. "Moodle" is a trademark of Moodle Pty Ltd.
+
+---
+
+## What Moodrop does
+
+- **One-click save.** A quiet icon appears at the right edge of every file on a Moodle course page. Hover a row and it turns into a **Save** button.
+- **Save a whole section.** Each section header gets a **Save all** button with a counter, a progress bar while it runs, and a retry for anything that failed.
+- **Organized by course.** Files go into `<your folder>/<course>/…`. The first time you save from a course, you choose an existing folder or create a new one (or let Moodrop name it after the course automatically).
+- **Any folder, including cloud folders.** Pick a folder synced by Google Drive, OneDrive, Box, or iCloud and it just works. No API keys and no sign-in, because Moodrop only writes to a folder on your computer.
+- **Knows what you already have.** Saved files get a green check. If you delete a file, the check goes away.
+- **Duplicates handled.** If a file with the same name exists, choose **Keep both** or **Replace**, and apply the choice to the rest of a bulk save.
+- **Works with your Moodle.** Not tied to one school. You enable it for the Moodle sites you use.
+- **Private by design.** Files go from Moodle straight to your folder. See [Privacy](PRIVACY.md).
+- **English and Japanese**, following your browser language.
+
+## Install
+
+Moodrop is not on the Chrome Web Store yet, so load it as an unpacked extension:
+
+1. Download this repository (**Code → Download ZIP**, then unzip it) or clone it.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and choose the folder that contains `manifest.json`.
+4. A welcome page opens. Follow the three steps: choose a save folder, add your Moodle's URL, and you're ready.
+
+To update, pull or download the new version and press the reload (↻) button on the extension's card. Your settings are kept. (Removing the extension clears them.)
+
+### Requirements
+
+| Item | Details |
+|---|---|
+| Browser | Chrome 111 or later. Other Chromium-based browsers that support the File System Access API (Edge, Brave, and so on) should work, but they have not been tested. |
+| Moodle | Any Moodle site you can sign in to in your browser. Themes and versions differ, so a few layouts may need adjustments. Reports are welcome. |
+
+## How to use
+
+1. Open a course page in Moodle.
+2. Hover a file and press **Save**, or press **Save all** at the top of a section.
+3. The first time you save from a course, choose where it goes. Moodrop remembers it for next time.
+
+You can change the save folder, manage your Moodle sites, and reset a course's folder in the settings page (click the toolbar icon, then **Settings**).
+
+### Notes
+
+- After you restart your browser, Chrome asks you to allow access to the save folder again. Moodrop shows a prompt for this. Choosing **Allow on every visit** in Chrome's dialog stops it from asking again.
+- Chrome refuses a few folders, such as your home folder or the Downloads folder itself. If that happens, choose or create a subfolder inside it.
+- Moodrop saves files that Moodle serves as files (resources, folder contents, assignment attachments). It does not download streamed video.
+- If you change the save folder to a different one, the per-course locations and "Saved" marks are reset (your files are not touched).
+
+## Permissions
+
+Moodrop asks for as little as it can.
+
+| Permission | Why |
+|---|---|
+| `storage` | Remembers your settings, the course-to-folder choices, and which files you saved. |
+| `scripting` | Adds the save buttons to the Moodle sites you enabled. |
+| `activeTab` | Lets the toolbar popup check whether the tab you are looking at is Moodle. |
+| Optional access to **sites you add** | Chrome asks you for each Moodle site when you enable it. Moodrop can only read and download from those sites. You can remove a site any time in settings. |
+
+## Privacy
+
+Moodrop has no server, no account, no analytics, and no ads. It fetches files from your Moodle with your own signed-in session and writes them to the folder you chose. The details are in [PRIVACY.md](PRIVACY.md).
+
+## Development
+
+```bash
+npm test      # unit tests (file naming, Moodle parsing, file writing, translations)
 ```
 
-## ライセンス
+There is no build step. Load the repository folder as an unpacked extension and reload it after changes.
 
-MIT
+```
+manifest.json
+_locales/      Strings (en, ja)
+src/
+  background.js    Service worker: fetches files and writes them to the folder
+  content/         The save buttons and dialogs shown on Moodle pages (Shadow DOM)
+  lib/             File names, Moodle fetching, folder writing, storage, sites
+  welcome/ options/ popup/ grant/    The extension's own pages
+test/
+```
+
+Translations live in `_locales/<lang>/messages.json`. To add a language, copy `en`, translate the messages, and run `npm test`: the tests check that every key and placeholder matches.
+
+## License
+
+[MIT](LICENSE)
