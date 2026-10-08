@@ -54,14 +54,14 @@ Element.prototype.attachShadow = function (init) { return _attach.call(this, { .
     w1: '第1回', w2: '第2回',
     files1: [['講義資料 第1回.pdf', 'pdf'], ['演習問題 第1回.pdf', 'pdf'], ['参考スライド.pptx', 'ppt']],
     files2: [['講義資料 第2回.pdf', 'pdf'], ['課題シート.docx', 'doc']],
-    dirs: ['情報工学I', '線形代数', '体育', '2026年度 後期'],
+    dirs: ['情報工学I', '線形代数', '体育', '有機化学'],
   } : {
     course: 'Intro to Computing', root: 'University', univ: 'Example University',
     nav: ['Dashboard', 'My courses', 'Calendar'], crumb: ['Home', 'My courses'],
     w1: 'Week 1', w2: 'Week 2',
     files1: [['Lecture 1.pdf', 'pdf'], ['Exercises 1.pdf', 'pdf'], ['Reference slides.pptx', 'ppt']],
     files2: [['Lecture 2.pdf', 'pdf'], ['Assignment sheet.docx', 'doc']],
-    dirs: ['Intro to Computing', 'Linear Algebra', 'Physical Education', '2026 Fall'],
+    dirs: ['Intro to Computing', 'Linear Algebra', 'Physical Education', 'Organic Chemistry'],
   };
   window.__T = T;
 
@@ -79,7 +79,7 @@ Element.prototype.attachShadow = function (init) { return _attach.call(this, { .
   // ---- 拡張機能の API の模擬 ----
   let mapped = scene !== 'folder';
   const savedAtStart = scene === 'one' ? { 'http://localhost/mod/resource/view.php?id=11': 1 } : {};
-  const tree = { '': T.dirs, [T.dirs[3]]: [lang === 'ja' ? '物理学' : 'Physics', lang === 'ja' ? '化学' : 'Chemistry'] };
+  const tree = { '': T.dirs };
   window.chrome = {
     i18n: {
       getMessage(k, subs = []) { const m = msgs[k]; return m ? m.message.replace(/\$(\d)/g, (_, i) => subs[i - 1] ?? '') : ''; },

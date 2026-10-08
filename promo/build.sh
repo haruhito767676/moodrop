@@ -27,7 +27,7 @@ for L in en ja; do
   # --- README 用のクリップ: 12fps・幅 960px のアニメーション WebP ---
   for n in one all folder; do
     rm -rf $TMP/$n-$L && mkdir -p $TMP/$n-$L
-    ffmpeg -y -loglevel error -i $OUT/$n-$L.mp4 -vf "fps=12,scale=960:-1:flags=lanczos" $TMP/$n-$L/f%04d.png
+    ffmpeg -y -loglevel error -i $OUT/$n-$L-nocap.mp4 -vf "fps=12,scale=960:-1:flags=lanczos" $TMP/$n-$L/f%04d.png
     img2webp -loop 0 -lossy -q ${Q:-82} -m 6 -d 83 $TMP/$n-$L/f*.png -o $MEDIA/clip-$n-$L.webp 2>&1 | tail -1
     echo "clip-$n-$L.webp $(du -h $MEDIA/clip-$n-$L.webp | cut -f1)"
   done

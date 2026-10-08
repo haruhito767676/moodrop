@@ -84,26 +84,31 @@ async function stopRec(outFile) {
 }
 
 /* ---------- マウス ---------- */
-let mx = 1100, my = 790, down = false;
-const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+let mx = 1000, my = 700, down = false;
+const smooth = (t) => t * t * t * (t * (t * 6 - 15) + 10);   // minimum-jerk: 出だしも終わりもなめらか
 async function put(x, y) {
   mx = x; my = y;
-  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: down ? 'left' : 'none', buttons: down ? 1 : 0 });
-  await evaluate(`stage.cursor(${x}, ${y}, ${down})`);
+  await Promise.all([
+    send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: down ? 'left' : 'none', buttons: down ? 1 : 0 }),
+    evaluate(`stage.cursor(${x}, ${y}, ${down})`),
+  ]);
 }
+// 時間で位置を決める（処理が遅れても、動きの速さが変わらない）
 async function move(x, y, ms = 800) {
-  const x0 = mx, y0 = my, steps = Math.max(2, Math.round(ms / 16));
-  const bend = Math.min(60, Math.hypot(x - x0, y - y0) * 0.12); // 少し弧を描く
+  const x0 = mx, y0 = my;
+  const dist = Math.hypot(x - x0, y - y0);
+  const bend = Math.min(26, dist * 0.06);                       // ごく浅い弧
+  const nx = -(y - y0) / (dist || 1), ny = (x - x0) / (dist || 1);
   const t0 = Date.now();
-  for (let i = 1; i <= steps; i++) {
-    const k = ease(i / steps);
-    await put(x0 + (x - x0) * k + Math.sin(k * Math.PI) * bend, y0 + (y - y0) * k - Math.sin(k * Math.PI) * bend * 0.6);
-    const wait = t0 + (ms * i) / steps - Date.now(); if (wait > 0) await sleep(wait);
+  for (;;) {
+    const t = Math.min(1, (Date.now() - t0) / ms), k = smooth(t), arc = Math.sin(k * Math.PI) * bend;
+    await put(x0 + (x - x0) * k + nx * arc, y0 + (y - y0) * k + ny * arc);
+    if (t >= 1) break;
   }
 }
 async function click() {
   down = true; await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: mx, y: my, button: 'left', buttons: 1, clickCount: 1 }); await evaluate(`stage.cursor(${mx},${my},true); stage.ripple(${mx},${my})`);
-  await sleep(110);
+  await sleep(120);
   down = false; await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: mx, y: my, button: 'left', buttons: 0, clickCount: 1 }); await evaluate(`stage.cursor(${mx},${my},false)`);
 }
 const rect = (jsExpr) => evaluate(`JSON.stringify(stage.R(${jsExpr}))`).then(JSON.parse);
@@ -114,19 +119,21 @@ const bulkEl = `${DOC}.querySelector('moodrop-bulk')`;
 const layer = `${DOC}.querySelector('moodrop-layer').shadowRoot`;
 const center = (r, fx = 0.5) => [r.x + r.w * fx, r.y + r.h / 2];
 async function moveTo(expr, ms, fx) { const r = await rect(expr); const [x, y] = center(r, fx); await move(x, y, ms); }
+// ボタンの少し手前（同じ行の中）に寄せて、行にポインタが乗った状態を見せてから、ボタンの上へ
+async function approach(expr, lead = 90, ms = 900) { const r = await rect(expr); const [x, y] = center(r); await move(x - lead, y + 2, ms); }
 
 /* ---------- シーン ---------- */
 const CAP = {
   en: {
     one: ['Hover. Click. Saved.'],
     all: ['Save a whole section at once.'],
-    folder: ['Pick a folder once.', 'Moodrop remembers it for the next file.'],
+    folder: ['Pick a folder once.'],
     tag: 'Moodle files, one click, any folder.',
   },
   ja: {
     one: ['ポインタを乗せて、押すだけ。'],
     all: ['セクションを、まとめて保存。'],
-    folder: ['保存先は、最初に選ぶだけ。', '次からは、自動で同じ場所に。'],
+    folder: ['保存先は、最初に選ぶだけ。'],
     tag: 'Moodleの資料を、ワンクリックで好きなフォルダへ。',
   },
 };
@@ -143,54 +150,50 @@ const scenes = {
   async one(lang) {
     const c = CAP[lang].one;
     await evaluate(`stage.caption(${JSON.stringify(c[0])})`);
+    await sleep(800);
+    await approach(ctl(1));                            // 行にポインタを乗せる → 保存アイコンが色づく
     await sleep(900);
-    await moveTo(rowEl(1), 1000, 0.45);
-    await sleep(700);                                  // 行にポインタを乗せる → 保存アイコンが色づく
-    await moveTo(ctl(1), 520);
-    await sleep(380);                                  // ラベル「保存」が出る
+    await moveTo(ctl(1), 380);
+    await sleep(700);                                  // ボタンの上で少し止まる（ラベル「保存」が出る）
     await evaluate(`stage.showFinder(true)`); await click();
-    await sleep(2400);                                 // 保存中 → 保存済み、Finder にファイルが落ちる
-    await moveTo(rowEl(2), 900, 0.2);
-    await sleep(900);
+    await sleep(3400);                                 // 保存中 → 保存済み、Finder にファイルが落ちる
   },
   async all(lang) {
     const c = CAP[lang].all;
     await evaluate(`stage.caption(${JSON.stringify(c[0])})`);
-    await sleep(900);
-    await moveTo(bulkEl, 1100);
+    await sleep(800);
+    await approach(bulkEl, 70, 1000);
     await sleep(500);
+    await moveTo(bulkEl, 380);
+    await sleep(800);
     await evaluate(`stage.showFinder(true)`); await click();
-    await sleep(4600);                                  // 進捗バー → すべて保存済み → 通知
-    await move(mx - 60, my + 140, 800);
-    await sleep(1000);
+    await sleep(5400);                                  // 進捗バー → すべて保存済み → 通知
   },
   async folder(lang) {
     const c = CAP[lang].folder;
-    await evaluate(`stage.caption(${JSON.stringify(c[0])}, ${JSON.stringify(c[1])})`);
+    await evaluate(`stage.caption(${JSON.stringify(c[0])})`);
     await evaluate(`stage.showFinder(true); stage.addFolders(window.frames[0].__T.dirs, window.frames[0].__T.dirs[0])`);
-    await sleep(900);
-    await moveTo(rowEl(0), 1000, 0.45);
-    await sleep(500);
-    await moveTo(ctl(0), 520);
-    await sleep(300);
-    await click();
-    await sleep(1300);                                  // 保存先のシートが開く
-    await moveTo(`${layer}.querySelectorAll('.row')[0]`, 900, 0.35);
-    await sleep(500);
-    await click();                                      // 近い名前の既存フォルダを選ぶ
-    await sleep(600);
-    await moveTo(`${layer}.querySelector('.pbtn')`, 800);
-    await sleep(400);
-    await click();
-    await sleep(2300);                                  // 保存 → Finder に出る
-    await moveTo(rowEl(1), 1000, 0.45);
-    await sleep(500);
-    await moveTo(ctl(1), 480);
-    await sleep(300);
-    await click();                                      // 2件目は、確認なしで同じ場所へ
-    await sleep(2400);
-    await move(mx - 40, my + 120, 700);
+    await sleep(800);
+    await approach(ctl(0));
     await sleep(700);
+    await moveTo(ctl(0), 380);
+    await sleep(500);
+    await click();
+    await sleep(1500);                                  // 保存先のシートが開く
+    await moveTo(`${layer}.querySelectorAll('.row')[0]`, 900, 0.35);
+    await sleep(600);
+    await click();                                      // 近い名前の既存フォルダを選ぶ
+    await sleep(700);
+    await moveTo(`${layer}.querySelector('.pbtn')`, 800);
+    await sleep(500);
+    await click();
+    await sleep(2400);                                  // 保存 → Finder に出る
+    await approach(ctl(1), 90, 1100);
+    await sleep(700);
+    await moveTo(ctl(1), 380);
+    await sleep(500);
+    await click();                                      // 2件目は、確認なしで同じ場所へ
+    await sleep(3000);
   },
 };
 
@@ -217,22 +220,27 @@ async function shots(lang) {
 }
 
 /* ---------- 実行 ---------- */
-const want = process.argv[2] || 'all', wantLang = process.argv[3] || 'all';
+const want = process.argv[2] || 'all', wantLang = process.argv[3] || 'all', wantVariant = process.argv[4] || 'both';
 const names = want === 'all' ? Object.keys(scenes) : [want];
 const shotsOnly = want === 'shots';
 const langs = wantLang === 'all' ? ['en', 'ja'] : [wantLang];
 for (const lang of langs) { if (shotsOnly) await shots(lang); }
 for (const lang of langs) for (const name of shotsOnly ? [] : names) {
-  console.log('record', name, lang);
-  mx = 1100; my = 790; down = false;
-  await send('Page.navigate', { url: `http://localhost:${PORT}/promo/stage.html?lang=${lang}&scene=${name}` });
-  await sleep(500);
-  await evaluate('window.__ready');
-  await sleep(400);
-  await put(mx, my);
-  await startRec(path.join(TMP, `${name}-${lang}`));
-  await scenes[name](lang);
-  await stopRec(path.join(OUT, `${name}-${lang}.mp4`));
+  // 字幕つき（デモ動画・サイト用）と、字幕なし（README のクリップ用）。タイトルは字幕つきだけ
+  const variants = name === 'title' ? ['cap'] : wantVariant === 'both' ? ['cap', 'nocap'] : [wantVariant];
+  for (const variant of variants) {
+    const nocap = variant === 'nocap';
+    console.log('record', name, lang, variant);
+    mx = 1000; my = 700; down = false;
+    await send('Page.navigate', { url: `http://localhost:${PORT}/promo/stage.html?lang=${lang}&scene=${name}${nocap ? '&nocap=1' : ''}` });
+    await sleep(500);
+    await evaluate('window.__ready');
+    await sleep(400);
+    await put(mx, my);
+    await startRec(path.join(TMP, `${name}-${lang}-${variant}`));
+    await scenes[name](lang);
+    await stopRec(path.join(OUT, `${name}-${lang}${nocap ? '-nocap' : ''}.mp4`));
+  }
 }
 cleanup();
 process.exit(0);
