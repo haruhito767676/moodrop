@@ -1,6 +1,7 @@
 // ローカルフォルダ（File System Access API）への書き込み
 
 import { numberedName } from './names.js';
+import { t } from './i18n.js';
 
 export async function exists(dir, name) {
   try {
@@ -19,7 +20,7 @@ export async function uniqueName(dir, name) {
     const candidate = numberedName(name, n);
     if (!(await exists(dir, candidate))) return candidate;
   }
-  throw new Error('空いているファイル名が見つかりませんでした');
+  throw new Error(t('errNoFreeName'));
 }
 
 // ストリームのまま書き込む（大きなファイルでもメモリに載せない）。

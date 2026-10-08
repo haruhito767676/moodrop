@@ -1,51 +1,51 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moodrop 設定</title>
+  <title data-i18n="optTitle">Moodrop Settings</title>
   <link rel="stylesheet" href="../ui.css" />
   <link rel="stylesheet" href="options.css" />
 </head>
 <body>
   <div class="shell">
-    <nav class="sidebar" aria-label="設定">
+    <nav class="sidebar" data-i18n-aria-label="navAria" aria-label="Settings">
       <div class="brand">
         <img src="../../icons/icon128.png" width="28" height="28" alt="" />
         <span>Moodrop</span>
       </div>
-      <a href="#general" data-pane="general">一般</a>
-      <a href="#courses" data-pane="courses">科目</a>
-      <a href="#sites" data-pane="sites">Moodleサイト</a>
-      <a href="../welcome/welcome.html" class="side-foot">使い方を見る</a>
+      <a href="#general" data-pane="general" data-i18n="navGeneral">General</a>
+      <a href="#courses" data-pane="courses" data-i18n="navCourses">Courses</a>
+      <a href="#sites" data-pane="sites" data-i18n="navSites">Moodle sites</a>
+      <a href="../welcome/welcome.html" class="side-foot" data-i18n="navGuide">How to use</a>
     </nav>
 
     <main>
       <section id="general" class="pane">
-        <h1>一般</h1>
+        <h1 data-i18n="navGeneral">General</h1>
 
-        <h2>保存先フォルダ</h2>
+        <h2 data-i18n="h2SaveFolder">Save folder</h2>
         <div class="card">
           <div class="row">
             <div class="grow">
-              <div class="title" id="root-name">未設定</div>
-              <div class="path" id="root-note">資料はこの中に、科目ごとのフォルダを作って保存されます。</div>
+              <div class="title" id="root-name" data-i18n="rootNone">Not set</div>
+              <div class="path" id="root-note" data-i18n="rootNote">Files are saved into a folder for each course inside this one.</div>
             </div>
             <span id="root-badge" class="badge" hidden></span>
-            <button id="regrant" type="button" hidden>再許可</button>
-            <button id="pick" class="primary" type="button">選ぶ…</button>
+            <button id="regrant" type="button" hidden data-i18n="btnReauth">Allow again</button>
+            <button id="pick" class="primary" type="button" data-i18n="btnChoose">Choose…</button>
           </div>
         </div>
-        <p class="hint">Google ドライブ / OneDrive / Box / iCloud などのデスクトップアプリの同期フォルダも選べます。</p>
-        <p class="hint">別のフォルダに変えると、科目ごとの保存先と「保存済み」の記録はリセットされます（学期ごとに変える使い方もできます）。</p>
+        <p class="hint" data-i18n="hintSync">Folders synced by desktop apps such as Google Drive, OneDrive, Box, or iCloud work too.</p>
+        <p class="hint" data-i18n="hintReset">Choosing a different folder resets each course’s location and the “Saved” records. (You can also use a new folder each semester.)</p>
         <p id="pick-msg" class="hint"></p>
 
-        <h2>科目フォルダ</h2>
+        <h2 data-i18n="h2CourseFolders">Course folders</h2>
         <div class="card">
           <label class="row switch-row">
             <div class="grow">
-              <div class="title">科目名で自動的に作成する</div>
-              <div class="path">オフのときは、初めて保存する科目ごとに保存先を確認します。</div>
+              <div class="title" data-i18n="autoTitle">Create folders from course names automatically</div>
+              <div class="path" data-i18n="autoDesc">When off, you choose the location the first time you save each course.</div>
             </div>
             <input id="auto" type="checkbox" role="switch" class="switch" />
           </label>
@@ -53,21 +53,21 @@
       </section>
 
       <section id="courses" class="pane" hidden>
-        <h1>科目</h1>
-        <p class="hint lead">科目ごとの保存先です。変更したい科目は「選び直す」を押すと、次に保存するときにもう一度選べます。</p>
+        <h1 data-i18n="navCourses">Courses</h1>
+        <p class="hint lead" data-i18n="coursesLead">Where each course is saved. Press “Choose again” to pick a different location the next time you save.</p>
         <div class="card" id="course-list"></div>
       </section>
 
       <section id="sites" class="pane" hidden>
-        <h1>Moodleサイト</h1>
+        <h1 data-i18n="navSites">Moodle sites</h1>
         <div class="card">
           <div id="site-list"></div>
           <div class="add">
-            <input id="site-url" type="url" placeholder="https://moodle.example.ac.jp/" aria-label="MoodleのURL" />
-            <button id="site-add" type="button">追加</button>
+            <input id="site-url" type="url" placeholder="https://moodle.example.ac.jp/" data-i18n-aria-label="siteUrlAria" aria-label="Moodle URL" />
+            <button id="site-add" type="button" data-i18n="btnAdd">Add</button>
           </div>
         </div>
-        <p class="hint">Moodleのページを開いて、ツールバーの Moodrop を押しても有効にできます。</p>
+        <p class="hint" data-i18n="sitesHint">You can also open a Moodle page and click Moodrop in the toolbar to enable it.</p>
         <p id="site-msg" class="hint"></p>
       </section>
     </main>

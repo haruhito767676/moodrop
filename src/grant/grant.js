@@ -1,10 +1,13 @@
 import { getRootHandle } from '../lib/store.js';
+import { t, applyI18n } from '../lib/i18n.js';
+
+applyI18n();
 
 const msg = document.getElementById('msg');
 const send = (granted) => chrome.runtime.sendMessage({ type: 'GRANT_RESULT', granted });
 
 const root = await getRootHandle();
-document.getElementById('name').textContent = root ? `「${root.name}」` : '';
+if (root) document.getElementById('body').textContent = t('grantBody', root.name);
 
 document.getElementById('allow').focus();
 document.getElementById('allow').addEventListener('click', async () => {
@@ -13,7 +16,7 @@ document.getElementById('allow').addEventListener('click', async () => {
     if (result === 'granted') {
       await send(true);
       window.close();
-    } else msg.textContent = '許可されませんでした。もう一度押すか、ウィンドウを閉じてください。';
+    } else msg.textContent = t('grantDenied');
   } catch (e) {
     msg.textContent = String((e && e.message) || e);
   }

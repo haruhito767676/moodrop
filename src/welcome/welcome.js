@@ -1,5 +1,8 @@
 import { getRootHandle, setRootHandle, resetForNewRoot, hasRootBoundData } from '../lib/store.js';
 import { getSites, enableSite, originOf } from '../lib/sites.js';
+import { t, applyI18n } from '../lib/i18n.js';
+
+applyI18n();
 
 const $ = (id) => document.getElementById(id);
 const steps = [...document.querySelectorAll('.step')];
@@ -28,19 +31,19 @@ async function closeSelf() {
 function primary() {
   switch (current) {
     case 0:
-      return { label: state.guide ? '使い方を見る' : 'はじめる', run: () => go(state.guide ? 3 : 1) };
+      return { label: state.guide ? t('guideLink') : t('btnStart'), run: () => go(state.guide ? 3 : 1) };
     case 1:
       return state.root
-        ? { label: '続ける', run: () => go(2) }
-        : { label: 'フォルダを選ぶ…', run: pickFolder };
+        ? { label: t('btnContinue'), run: () => go(2) }
+        : { label: t('btnPickFolder'), run: pickFolder };
     case 2:
       return state.site
-        ? { label: '続ける', run: () => go(3) }
-        : { label: '有効にする', run: addSite, disabled: !originOf($('site-url').value.trim()) };
+        ? { label: t('btnContinue'), run: () => go(3) }
+        : { label: t('btnEnable'), run: addSite, disabled: !originOf($('site-url').value.trim()) };
     default:
       return state.site
-        ? { label: 'Moodle を開く', run: () => { location.href = state.site; } }
-        : { label: '閉じる', run: closeSelf };
+        ? { label: t('btnOpenMoodle'), run: () => { location.href = state.site; } }
+        : { label: t('close'), run: closeSelf };
   }
 }
 
@@ -52,10 +55,10 @@ function render() {
   );
   // 設定済みのときに開いた場合は、最後の画面を「使い方」として見せる
   const last = steps[3];
-  last.querySelector('h1').textContent = state.guide ? '使い方' : '準備ができました';
+  last.querySelector('h1').textContent = state.guide ? t('w3h1Guide') : t('w3h1');
   back.hidden = pos === 0 || current === 3;
   skip.hidden = current !== 1 && current !== 2;
-  skip.textContent = 'あとで';
+  skip.textContent = t('btnLater');
 
   const p = primary();
   next.textContent = p.label;
@@ -93,7 +96,7 @@ async function pickFolder() {
     render();
   } catch (e) {
     if (e.name === 'AbortError') return;
-    $('pick-msg').textContent = `フォルダを選べませんでした（${e.message}）。別のフォルダを選んでください。`;
+    $('pick-msg').textContent = t('pickError', e.message);
   }
 }
 
@@ -109,7 +112,7 @@ async function addSite() {
     state.site = origin;
     render();
   } else {
-    msg.textContent = 'アクセスが許可されませんでした。もう一度お試しください。';
+    msg.textContent = t('w2denied');
     msg.classList.add('err');
     render();
   }

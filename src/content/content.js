@@ -6,7 +6,7 @@
 if (window.__moodropLoaded) return; // 登録済みスクリプトと即時注入が重なっても二重に動かさない
 window.__moodropLoaded = true;
 
-const { h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet } = MoodropUI;
+const { t, h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet } = MoodropUI;
 
 const PROCESSED_ATTR = 'data-moodrop-btn-added';
 
@@ -111,7 +111,7 @@ function sendSave(anchor, extra) {
       resolve({
         status: 'error',
         message: /context invalidated/i.test(msg)
-          ? '拡張機能が更新されました。このページを再読み込みしてください'
+          ? t('errExtensionUpdated')
           : msg,
       });
     }
@@ -142,59 +142,59 @@ async function runSaveInner(anchor, { onState, bulkCtx } = {}) {
 
   for (let guard = 0; guard < 6; guard++) {
     const resp = await sendSave(anchor, state);
-    if (!resp) return { ok: false, message: '応答がありませんでした' };
+    if (!resp) return { ok: false, message: t('errNoResponse') };
 
     if (resp.status === 'ok') return { ok: true, file: resp.file };
 
     if (resp.status === 'needs_setup') {
       toast({
-        message: resp.message || '保存先フォルダがまだ選ばれていません',
-        actionLabel: '設定を開く',
+        message: resp.message || t('needsSetupMsg'),
+        actionLabel: t('toastOpenSettings'),
         onAction: () => request({ type: 'OPEN_OPTIONS' }),
         timeout: 12000,
       });
-      return { ok: false, benign: true, message: '保存先フォルダが未設定です' };
+      return { ok: false, benign: true, message: 'Save folder is not set' };
     }
 
     if (resp.status === 'needs_permission') {
-      setState('許可を確認…');
+      setState(t('stateCheckingAccess'));
       if (!(await permissionAlert(resp.rootName))) {
-        return { ok: false, benign: true, message: '保存先フォルダへのアクセスの許可をキャンセルしました' };
+        return { ok: false, benign: true, message: 'Access permission was cancelled' };
       }
       const grant = await request({ type: 'REQUEST_GRANT' });
       if (!grant || grant.status !== 'ok') {
         // 許可ウィンドウが閉じられた／拒否された。黙って消えないよう、エラーとして知らせる。
-        return { ok: false, message: '保存先フォルダへのアクセスが許可されませんでした。もう一度お試しください' };
+        return { ok: false, message: t('errGrantDenied') };
       }
-      setState('保存中…');
+      setState(t('stateSaving'));
       continue;
     }
 
     if (resp.status === 'needs_folder') {
-      setState('保存先を選択…');
+      setState(t('stateChoosingFolder'));
       const { courseName } = getCourseInfo();
       const path = await folderSheet({ courseName, ...resp });
-      if (!path) return { ok: false, benign: true, message: '保存先の選択をキャンセルしました' };
+      if (!path) return { ok: false, benign: true, message: 'Folder selection was cancelled' };
       state.dirPath = path;
-      setState('保存中…');
+      setState(t('stateSaving'));
       continue;
     }
 
     if (resp.status === 'duplicate') {
-      setState('確認…');
+      setState(t('stateConfirming'));
       const res = await duplicateAlert(resp.filename, { bulkMode: Boolean(bulkCtx) });
       if (!res || !res.choice) {
-        return { ok: false, benign: true, message: '重複時の操作をキャンセルしました' };
+        return { ok: false, benign: true, message: 'Duplicate handling was cancelled' };
       }
       state.onDuplicate = res.choice;
       if (bulkCtx && res.applyAll) bulkCtx.duplicateChoice = res.choice;
-      setState('保存中…');
+      setState(t('stateSaving'));
       continue;
     }
 
     return { ok: false, benign: isBenignCancel(resp.message), message: resp.message };
   }
-  return { ok: false, message: '処理を完了できませんでした' };
+  return { ok: false, message: t('errIncomplete') };
 }
 
 /* ---------- コントロール（保存ボタン / 保存済み表示） ---------- */
@@ -217,8 +217,8 @@ function makeControl(anchor) {
 
   rec.showSave = () => {
     ctl.replaceChildren(
-      h('button', { class: 'btn', type: 'button', title: 'この資料を科目フォルダに保存', 'aria-label': 'この資料を保存', onclick: stop(() => startSingleSave(anchor, rec)) },
-        icon('download'), label('保存'))
+      h('button', { class: 'btn', type: 'button', title: t('btnSaveTitle'), 'aria-label': t('btnSaveAria'), onclick: stop(() => startSingleSave(anchor, rec)) },
+        icon('download'), label(t('btnSave')))
     );
   };
 
@@ -229,9 +229,9 @@ function makeControl(anchor) {
     );
   };
 
-  rec.showError = (text = '失敗') => {
+  rec.showError = (text = t('stateFailed')) => {
     ctl.replaceChildren(
-      h('button', { class: 'btn err', type: 'button', title: 'クリックで再試行', onclick: stop(() => startSingleSave(anchor, rec)) },
+      h('button', { class: 'btn err', type: 'button', title: t('btnRetryTitle'), onclick: stop(() => startSingleSave(anchor, rec)) },
         icon('retry'), label(text))
     );
   };
@@ -239,9 +239,9 @@ function makeControl(anchor) {
   rec.showSaved = (info) => {
     rec.saved = info;
     ctl.replaceChildren(
-      h('span', { class: 'saved', title: info.path ? `保存済み: ${info.path}` : '保存済み', role: 'img', 'aria-label': '保存済み' },
-        h('span', { class: 'lbl' }, '保存済み'), icon('saved')),
-      h('button', { class: 'icon-btn', type: 'button', title: 'もう一度保存する', 'aria-label': 'もう一度保存する', onclick: stop(() => startSingleSave(anchor, rec)) },
+      h('span', { class: 'saved', title: info.path ? t('savedTitle', info.path) : t('savedLabel'), role: 'img', 'aria-label': t('savedLabel') },
+        h('span', { class: 'lbl' }, t('savedLabel')), icon('saved')),
+      h('button', { class: 'icon-btn', type: 'button', title: t('resaveTitle'), 'aria-label': t('resaveTitle'), onclick: stop(() => startSingleSave(anchor, rec)) },
         icon('retry'))
     );
     refreshSectionButtons();
@@ -255,14 +255,14 @@ function startSingleSave(anchor, rec) {
   if (rec.busy) return;
   rec.busy = true;
   const wasSaved = rec.saved;
-  rec.showBusy('保存中…');
+  rec.showBusy(t('stateSaving'));
 
   runSave(anchor, { onState: rec.showBusy }).then((r) => {
     rec.busy = false;
 
     if (r.ok) {
       rec.showSaved({
-        name: (r.file && r.file.name) || shortName(anchor) || '資料',
+        name: (r.file && r.file.name) || shortName(anchor) || t('fileFallback'),
         path: (r.file && r.file.path) || (wasSaved && wasSaved.path) || '',
       });
       return;
@@ -278,8 +278,8 @@ function startSingleSave(anchor, rec) {
     console.warn('[Moodrop]', r.message);
     rec.showError();
     toast({
-      message: `「${shortName(anchor)}」の保存に失敗しました: ${r.message || '不明なエラー'}`,
-      actionLabel: '再試行',
+      message: t('toastFailed', shortName(anchor), r.message || t('toastUnknownError')),
+      actionLabel: t('toastRetry'),
       onAction: () => startSingleSave(anchor, rec),
     });
   });
@@ -319,17 +319,17 @@ function setBulk(bulk, state) {
   if (state.kind === 'done') {
     btn.className = 'bulk done';
     btn.disabled = true;
-    btn.replaceChildren(icon('check'), h('span', {}, 'すべて保存済み'));
+    btn.replaceChildren(icon('check'), h('span', {}, t('bulkAllSaved')));
   } else if (state.kind === 'busy') {
     btn.className = 'bulk busy';
     btn.disabled = true;
     btn.style.setProperty('--p', `${Math.round((state.done / state.total) * 100)}%`);
-    btn.replaceChildren(h('span', { class: 'spinner' }), h('span', {}, `保存中 ${state.done}/${state.total}`));
+    btn.replaceChildren(h('span', { class: 'spinner' }), h('span', {}, t('bulkProgress', state.done, state.total)));
   } else {
     btn.className = 'bulk';
     btn.disabled = false;
     btn.style.removeProperty('--p');
-    btn.replaceChildren(icon('download'), h('span', {}, 'すべて保存'), h('span', { class: 'count' }, String(state.count)));
+    btn.replaceChildren(icon('download'), h('span', {}, t('bulkSaveAll')), h('span', { class: 'count' }, String(state.count)));
   }
 }
 
@@ -419,7 +419,7 @@ function refreshSectionButtons() {
 }
 
 // 連続保存の共通ループ。戻り値: { done, failed: anchor[], cancelled }
-async function saveSequence(list, bulk, label) {
+async function saveSequence(list, bulk) {
   const bulkCtx = { duplicateChoice: null };
   const failed = [];
   let done = 0;
@@ -431,7 +431,7 @@ async function saveSequence(list, bulk, label) {
     if (!rec || rec.saved || rec.busy || !a.isConnected) continue;
 
     rec.busy = true;
-    rec.showBusy('保存中…');
+    rec.showBusy(t('stateSaving'));
     setBulk(bulk, { kind: 'busy', done: i, total: list.length });
 
     const r = await runSave(a, { onState: rec.showBusy, bulkCtx });
@@ -439,7 +439,7 @@ async function saveSequence(list, bulk, label) {
 
     if (r.ok) {
       rec.showSaved({
-        name: (r.file && r.file.name) || shortName(a) || '資料',
+        name: (r.file && r.file.name) || shortName(a) || t('fileFallback'),
         path: (r.file && r.file.path) || '',
       });
       done++;
@@ -455,29 +455,29 @@ async function saveSequence(list, bulk, label) {
   return { done, failed, cancelled };
 }
 
-async function runBulk(section, bulk, list, label) {
+async function runBulk(section, bulk, list, { retry = false } = {}) {
   if (bulk.busy) return;
   bulk.busy = true;
-  const { done, failed, cancelled } = await saveSequence(list, bulk, label);
+  const { done, failed, cancelled } = await saveSequence(list, bulk);
   bulk.busy = false;
   updateBulk(bulk, sectionAnchors(section));
 
   if (cancelled) {
-    toast({ message: `${label === '保存中' ? '一括保存' : '再試行'}を中断しました（${done} 件保存）` });
+    toast({ message: t(retry ? 'toastRetryInterrupted' : 'toastBulkInterrupted', done) });
   } else if (failed.length) {
     toast({
-      message: `${done} 件成功 / ${failed.length} 件失敗`,
-      actionLabel: '失敗分を再試行',
-      onAction: () => runBulk(section, bulk, failed, '再試行'),
+      message: t('toastBulkResult', done, failed.length),
+      actionLabel: t('toastRetryFailedOnes'),
+      onAction: () => runBulk(section, bulk, failed, { retry: true }),
     });
   } else {
-    toast({ message: `${done} 件の資料を保存しました` });
+    toast({ message: t('toastBulkDone', done) });
   }
 }
 
 function runBulkSave(section, bulk) {
   const pending = pendingOf(sectionAnchors(section));
-  if (pending.length) runBulk(section, bulk, pending, '保存中');
+  if (pending.length) runBulk(section, bulk, pending);
 }
 
 /* ---------- ボタン注入 ---------- */

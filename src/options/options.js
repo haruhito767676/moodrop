@@ -3,6 +3,9 @@ import {
   resetForNewRoot, hasRootBoundData,
 } from '../lib/store.js';
 import { getSites, enableSite, disableSite, originOf } from '../lib/sites.js';
+import { t, applyI18n } from '../lib/i18n.js';
+
+applyI18n();
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -34,19 +37,19 @@ async function renderRoot() {
   regrant.hidden = true;
 
   if (!root) {
-    $('root-name').textContent = '未設定';
-    $('pick').textContent = '選ぶ…';
+    $('root-name').textContent = t('rootNone');
+    $('pick').textContent = t('btnChoose');
     return;
   }
 
   $('root-name').textContent = root.name;
-  $('pick').textContent = '変更…';
+  $('pick').textContent = t('btnChange');
   badge.hidden = false;
   if ((await permissionOf(root)) === 'granted') {
-    badge.textContent = '使用可能';
+    badge.textContent = t('badgeReady');
     badge.className = 'badge ok';
   } else {
-    badge.textContent = '再許可が必要';
+    badge.textContent = t('badgeReauth');
     badge.className = 'badge warn';
     regrant.hidden = false;
   }
@@ -61,9 +64,7 @@ $('pick').addEventListener('click', async () => {
     const old = await getRootHandle();
     const changed = old && !(await old.isSameEntry(handle).catch(() => false));
     if (changed && (await hasRootBoundData())) {
-      const ok = confirm(
-        `保存先を「${handle.name}」に変更します。\n\n科目ごとの保存先と「保存済み」の記録はリセットされ、次に保存するときに、もう一度選び直します（保存済みのファイルは消えません）。\n\nよろしいですか？`
-      );
+      const ok = confirm(t('confirmRoot', handle.name));
       if (!ok) return;
       await resetForNewRoot();
     }
@@ -73,7 +74,7 @@ $('pick').addEventListener('click', async () => {
     await renderCourses();
   } catch (e) {
     if (e.name === 'AbortError') return;
-    $('pick-msg').textContent = `フォルダを選べませんでした（${e.message}）。別のフォルダを選んでください。`;
+    $('pick-msg').textContent = t('pickError', e.message);
   }
 });
 
@@ -95,14 +96,14 @@ async function renderCourses() {
   box.replaceChildren();
   const entries = Object.entries(await getCourseDirs()).sort((a, b) => (b[1].at || 0) - (a[1].at || 0));
   if (!entries.length) {
-    box.appendChild(el('div', 'empty-row', 'まだ保存した科目はありません'));
+    box.appendChild(el('div', 'empty-row', t('coursesEmpty')));
     return;
   }
   for (const [key, val] of entries) {
     const row = el('div', 'row');
     const body = el('div', 'grow');
     body.append(el('div', 'title', val.courseName || val.path[val.path.length - 1]), el('div', 'path', val.path.join(' / ')));
-    const btn = el('button', null, '選び直す');
+    const btn = el('button', null, t('btnChooseAgain'));
     btn.type = 'button';
     btn.addEventListener('click', async () => {
       await forgetCourseDir(key);
@@ -120,12 +121,12 @@ async function renderSites() {
   const box = $('site-list');
   box.replaceChildren();
   if (!sites.length) {
-    box.appendChild(el('div', 'empty-row', 'まだ登録されていません'));
+    box.appendChild(el('div', 'empty-row', t('sitesEmpty')));
     return;
   }
   for (const origin of sites) {
     const row = el('div', 'row');
-    const rm = el('button', 'danger', '解除');
+    const rm = el('button', 'danger', t('btnRemove'));
     rm.type = 'button';
     rm.addEventListener('click', async () => {
       await disableSite(origin);
@@ -141,14 +142,14 @@ $('site-add').addEventListener('click', async () => {
   msg.textContent = '';
   const origin = originOf($('site-url').value.trim());
   if (!origin) {
-    msg.textContent = 'URL（https://…）を入力してください。';
+    msg.textContent = t('siteUrlInvalid');
     return;
   }
   if (await enableSite(origin)) {
     $('site-url').value = '';
     renderSites();
   } else {
-    msg.textContent = 'アクセスが許可されませんでした。';
+    msg.textContent = t('siteDenied');
   }
 });
 

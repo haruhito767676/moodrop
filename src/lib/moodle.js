@@ -1,5 +1,7 @@
 // Moodle からのファイル取得まわり
 
+import { t } from './i18n.js';
+
 // HTTPヘッダーは latin1 として解釈されるため、サーバーが filename="..." に
 // UTF-8 のバイト列を素で入れてくると文字化けする。latin1 → UTF-8 で読み直す。
 export function fixHeaderMojibake(s) {
@@ -69,7 +71,7 @@ async function fetchWithHeaderTimeout(url, ms = 30000) {
   try {
     return await fetch(url, { credentials: 'include', redirect: 'follow', signal: controller.signal });
   } catch (e) {
-    if (e && e.name === 'AbortError') throw new Error('Moodleからの応答がありません（タイムアウト）');
+    if (e && e.name === 'AbortError') throw new Error(t('errTimeout'));
     throw e;
   } finally {
     clearTimeout(timer);
@@ -78,17 +80,17 @@ async function fetchWithHeaderTimeout(url, ms = 30000) {
 
 export async function fetchMoodleFile(fileUrl) {
   let res = await fetchWithHeaderTimeout(fileUrl);
-  if (!res.ok) throw new Error(`Moodleからのファイル取得に失敗しました (${res.status})`);
+  if (!res.ok) throw new Error(t('errFetchFailed', res.status));
 
   const contentType = (res.headers.get('Content-Type') || '').toLowerCase();
   if (contentType.includes('text/html')) {
     const html = await res.text();
     const real = extractRealFileLink(html, res.url || fileUrl);
     if (!real || real === fileUrl) {
-      throw new Error('資料の実ファイルURLを特定できませんでした（Moodleのテーマ差の可能性があります）');
+      throw new Error(t('errNoRealUrl'));
     }
     res = await fetchWithHeaderTimeout(real);
-    if (!res.ok) throw new Error(`Moodleからのファイル取得に失敗しました (${res.status})`);
+    if (!res.ok) throw new Error(t('errFetchFailed', res.status));
   }
   return res;
 }

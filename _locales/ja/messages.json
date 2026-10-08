@@ -1,0 +1,434 @@
+{
+  "extName": {
+    "message": "Moodrop"
+  },
+  "extDescription": {
+    "message": "Moodleの資料をワンクリックで、科目ごとのフォルダに保存します。"
+  },
+  "actionTitle": {
+    "message": "Moodrop"
+  },
+  "cancel": {
+    "message": "キャンセル"
+  },
+  "close": {
+    "message": "閉じる"
+  },
+  "btnContinue": {
+    "message": "続ける"
+  },
+  "btnChoose": {
+    "message": "選ぶ…"
+  },
+  "btnChange": {
+    "message": "変更…"
+  },
+  "btnAdd": {
+    "message": "追加"
+  },
+  "btnRemove": {
+    "message": "解除"
+  },
+  "btnLater": {
+    "message": "あとで"
+  },
+  "btnBack": {
+    "message": "戻る"
+  },
+  "btnEnable": {
+    "message": "有効にする"
+  },
+  "fileFallback": {
+    "message": "資料"
+  },
+  "unnamed": {
+    "message": "(名称不明)"
+  },
+  "rootDefaultName": {
+    "message": "保存先"
+  },
+  "fallbackCourse": {
+    "message": "無題の科目"
+  },
+  "fallbackFolder": {
+    "message": "無題"
+  },
+  "errExtensionUpdated": {
+    "message": "拡張機能が更新されました。このページを再読み込みしてください"
+  },
+  "errNoResponse": {
+    "message": "応答がありませんでした"
+  },
+  "errIncomplete": {
+    "message": "処理を完了できませんでした"
+  },
+  "errGrantDenied": {
+    "message": "保存先フォルダへのアクセスが許可されませんでした。もう一度お試しください"
+  },
+  "errFolderMissing": {
+    "message": "保存先フォルダが見つかりません。設定で選び直してください"
+  },
+  "errOtherOrigin": {
+    "message": "このページ以外のURLは保存できません"
+  },
+  "errNoAccess": {
+    "message": "フォルダにアクセスできません"
+  },
+  "errTimeout": {
+    "message": "Moodleからの応答がありません（タイムアウト）"
+  },
+  "errFetchFailed": {
+    "message": "Moodleからのファイル取得に失敗しました ($1)"
+  },
+  "errNoRealUrl": {
+    "message": "資料の実ファイルURLを特定できませんでした（Moodleのテーマ差の可能性があります）"
+  },
+  "errNoFreeName": {
+    "message": "空いているファイル名が見つかりませんでした"
+  },
+  "needsSetupMsg": {
+    "message": "保存先フォルダがまだ選ばれていません"
+  },
+  "btnSave": {
+    "message": "保存"
+  },
+  "btnSaveTitle": {
+    "message": "この資料を科目フォルダに保存"
+  },
+  "btnSaveAria": {
+    "message": "この資料を保存"
+  },
+  "btnRetryTitle": {
+    "message": "クリックで再試行"
+  },
+  "stateFailed": {
+    "message": "失敗"
+  },
+  "savedLabel": {
+    "message": "保存済み"
+  },
+  "savedTitle": {
+    "message": "保存済み: $1"
+  },
+  "resaveTitle": {
+    "message": "もう一度保存する"
+  },
+  "stateSaving": {
+    "message": "保存中…"
+  },
+  "stateCheckingAccess": {
+    "message": "許可を確認…"
+  },
+  "stateChoosingFolder": {
+    "message": "保存先を選択…"
+  },
+  "stateConfirming": {
+    "message": "確認…"
+  },
+  "bulkSaveAll": {
+    "message": "すべて保存"
+  },
+  "bulkAllSaved": {
+    "message": "すべて保存済み"
+  },
+  "bulkProgress": {
+    "message": "保存中 $1/$2"
+  },
+  "toastFailed": {
+    "message": "「$1」の保存に失敗しました: $2"
+  },
+  "toastUnknownError": {
+    "message": "不明なエラー"
+  },
+  "toastRetry": {
+    "message": "再試行"
+  },
+  "toastRetryFailedOnes": {
+    "message": "失敗分を再試行"
+  },
+  "toastBulkInterrupted": {
+    "message": "一括保存を中断しました（$1 件保存）"
+  },
+  "toastRetryInterrupted": {
+    "message": "再試行を中断しました（$1 件保存）"
+  },
+  "toastBulkResult": {
+    "message": "$1 件成功 / $2 件失敗"
+  },
+  "toastBulkDone": {
+    "message": "$1 件の資料を保存しました"
+  },
+  "toastOpenSettings": {
+    "message": "設定を開く"
+  },
+  "dupTitle": {
+    "message": "同じ名前のファイルがあります"
+  },
+  "dupBody": {
+    "message": "「$1」はこのフォルダにすでにあります。"
+  },
+  "dupApplyAll": {
+    "message": "以降の重複にも同じ操作を適用"
+  },
+  "dupKeepBoth": {
+    "message": "別名で保存"
+  },
+  "dupReplace": {
+    "message": "上書き"
+  },
+  "permTitle": {
+    "message": "保存先フォルダへのアクセスを再確認"
+  },
+  "permBody": {
+    "message": "ブラウザを再起動したあとなどは、保存先フォルダへのアクセスをもう一度許可する必要があります。"
+  },
+  "permBodyNamed": {
+    "message": "ブラウザを再起動したあとなどは、保存先フォルダ「$1」へのアクセスをもう一度許可する必要があります。"
+  },
+  "permHint": {
+    "message": "許可の画面で「サイトを開くたびに許可」を選ぶと、次回から表示されません。"
+  },
+  "permAllow": {
+    "message": "許可する"
+  },
+  "sheetTitle": {
+    "message": "この科目の保存先"
+  },
+  "sheetAria": {
+    "message": "保存先を選ぶ"
+  },
+  "tabExisting": {
+    "message": "既存のフォルダ"
+  },
+  "tabNew": {
+    "message": "新しく作る"
+  },
+  "fieldFolderName": {
+    "message": "フォルダ名"
+  },
+  "labelNewName": {
+    "message": "新しいフォルダの名前"
+  },
+  "labelWhere": {
+    "message": "作成する場所（フォルダをクリックで移動）"
+  },
+  "sheetLoading": {
+    "message": "読み込み中…"
+  },
+  "sheetEmpty": {
+    "message": "フォルダはありません"
+  },
+  "tagSimilar": {
+    "message": "近い名前"
+  },
+  "openFolderAria": {
+    "message": "$1 を開く"
+  },
+  "btnCreateSave": {
+    "message": "作成して保存"
+  },
+  "btnSaveIn": {
+    "message": "「$1」に保存"
+  },
+  "btnSaveHere": {
+    "message": "このフォルダに保存"
+  },
+  "btnSaveRoot": {
+    "message": "$1 に直接保存"
+  },
+  "optTitle": {
+    "message": "Moodrop 設定"
+  },
+  "navAria": {
+    "message": "設定"
+  },
+  "navGeneral": {
+    "message": "一般"
+  },
+  "navCourses": {
+    "message": "科目"
+  },
+  "navSites": {
+    "message": "Moodleサイト"
+  },
+  "navGuide": {
+    "message": "使い方を見る"
+  },
+  "h2SaveFolder": {
+    "message": "保存先フォルダ"
+  },
+  "rootNone": {
+    "message": "未設定"
+  },
+  "rootNote": {
+    "message": "資料はこの中に、科目ごとのフォルダを作って保存されます。"
+  },
+  "badgeReady": {
+    "message": "使用可能"
+  },
+  "badgeReauth": {
+    "message": "再許可が必要"
+  },
+  "btnReauth": {
+    "message": "再許可"
+  },
+  "hintSync": {
+    "message": "Google ドライブ / OneDrive / Box / iCloud などのデスクトップアプリの同期フォルダも選べます。"
+  },
+  "hintReset": {
+    "message": "別のフォルダに変えると、科目ごとの保存先と「保存済み」の記録はリセットされます（学期ごとに変える使い方もできます）。"
+  },
+  "pickError": {
+    "message": "フォルダを選べませんでした（$1）。別のフォルダを選んでください。"
+  },
+  "confirmRoot": {
+    "message": "保存先を「$1」に変更します。\n\n科目ごとの保存先と「保存済み」の記録はリセットされ、次に保存するときに、もう一度選び直します（保存済みのファイルは消えません）。\n\nよろしいですか？"
+  },
+  "h2CourseFolders": {
+    "message": "科目フォルダ"
+  },
+  "autoTitle": {
+    "message": "科目名で自動的に作成する"
+  },
+  "autoDesc": {
+    "message": "オフのときは、初めて保存する科目ごとに保存先を確認します。"
+  },
+  "coursesLead": {
+    "message": "科目ごとの保存先です。変更したい科目は「選び直す」を押すと、次に保存するときにもう一度選べます。"
+  },
+  "coursesEmpty": {
+    "message": "まだ保存した科目はありません"
+  },
+  "btnChooseAgain": {
+    "message": "選び直す"
+  },
+  "siteUrlAria": {
+    "message": "MoodleのURL"
+  },
+  "sitesHint": {
+    "message": "Moodleのページを開いて、ツールバーの Moodrop を押しても有効にできます。"
+  },
+  "sitesEmpty": {
+    "message": "まだ登録されていません"
+  },
+  "siteUrlInvalid": {
+    "message": "URL（https://…）を入力してください。"
+  },
+  "siteDenied": {
+    "message": "アクセスが許可されませんでした。"
+  },
+  "setupTitle": {
+    "message": "セットアップを完了しましょう"
+  },
+  "setupBody": {
+    "message": "保存先のフォルダが、まだ選ばれていません"
+  },
+  "badgeOn": {
+    "message": "有効"
+  },
+  "h2Recent": {
+    "message": "最近の保存"
+  },
+  "siteOnSub": {
+    "message": "このサイトの資料に保存ボタンが表示されます"
+  },
+  "siteDetected": {
+    "message": "Moodleを検出しました"
+  },
+  "siteNotMoodle": {
+    "message": "Moodleではないようです。使う場合のみ有効にしてください"
+  },
+  "recentEmpty": {
+    "message": "まだ保存した資料はありません"
+  },
+  "welTitle": {
+    "message": "Moodrop へようこそ"
+  },
+  "w0lead": {
+    "message": "Moodleの資料を、ワンクリックで好きなフォルダへ。"
+  },
+  "w0p1b": {
+    "message": "科目ごとに自動で整理"
+  },
+  "w0p1d": {
+    "message": "資料は、科目のフォルダに入ります。"
+  },
+  "w0p2b": {
+    "message": "どのフォルダでも"
+  },
+  "w0p2d": {
+    "message": "Google ドライブや OneDrive の同期フォルダも選べます。"
+  },
+  "w0p3b": {
+    "message": "外には送りません"
+  },
+  "w0p3d": {
+    "message": "取得も保存も、すべてこのブラウザの中で完結します。"
+  },
+  "btnStart": {
+    "message": "はじめる"
+  },
+  "guideLink": {
+    "message": "使い方を見る"
+  },
+  "w1h1": {
+    "message": "保存先を選びます"
+  },
+  "w1lead": {
+    "message": "資料を入れるフォルダを、1つ選んでください。中に、科目ごとのフォルダが作られます。"
+  },
+  "w1chosen": {
+    "message": "を保存先にしました"
+  },
+  "btnPickFolder": {
+    "message": "フォルダを選ぶ…"
+  },
+  "w2h1": {
+    "message": "使う Moodle を登録します"
+  },
+  "w2lead": {
+    "message": "資料をダウンロードする、あなたの Moodle の URL を入力してください。"
+  },
+  "w2hint": {
+    "message": "ブラウザの確認が出るので「許可」を選んでください。あとから、設定でいつでも追加・解除できます。"
+  },
+  "w2ok": {
+    "message": "で使えるようにしました"
+  },
+  "w2denied": {
+    "message": "アクセスが許可されませんでした。もう一度お試しください。"
+  },
+  "w3h1": {
+    "message": "準備ができました"
+  },
+  "w3h1Guide": {
+    "message": "使い方"
+  },
+  "w3lead": {
+    "message": "Moodle の科目ページを開くと、資料の右端に保存ボタンが表示されます。"
+  },
+  "mockSection": {
+    "message": "第1回"
+  },
+  "mockFile1": {
+    "message": "講義資料 第1回.pdf"
+  },
+  "mockFile2": {
+    "message": "演習問題 第1回.pdf"
+  },
+  "w3hint": {
+    "message": "初めて保存する科目では、保存先のフォルダを選ぶ画面が出ます。"
+  },
+  "btnOpenMoodle": {
+    "message": "Moodle を開く"
+  },
+  "grantTitle": {
+    "message": "保存先フォルダへのアクセスを許可"
+  },
+  "grantBody": {
+    "message": "保存先フォルダ「$1」へのアクセスを、もう一度確認します。下のボタンを押して、表示される確認で「許可」を選んでください。"
+  },
+  "grantDenied": {
+    "message": "許可されませんでした。もう一度押すか、ウィンドウを閉じてください。"
+  }
+}

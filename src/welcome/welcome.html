@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moodrop へようこそ</title>
+  <title data-i18n="welTitle">Welcome to Moodrop</title>
   <link rel="stylesheet" href="../ui.css" />
   <link rel="stylesheet" href="welcome.css" />
 </head>
@@ -13,20 +13,20 @@
       <!-- 1. ようこそ -->
       <section class="step" data-step="0">
         <img class="hero" src="../../icons/icon128.png" width="96" height="96" alt="" />
-        <h1>Moodrop へようこそ</h1>
-        <p class="lead">Moodleの資料を、ワンクリックで好きなフォルダへ。</p>
+        <h1 data-i18n="welTitle">Welcome to Moodrop</h1>
+        <p class="lead" data-i18n="w0lead">Save Moodle files to any folder in one click.</p>
         <ul class="points">
           <li>
             <span class="pi"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M1.5 4.2a2 2 0 0 1 2-2h3c.5 0 1 .2 1.3.6l.8 1h6a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/></svg></span>
-            <div><b>科目ごとに自動で整理</b><span>資料は、科目のフォルダに入ります。</span></div>
+            <div><b data-i18n="w0p1b">Organized by course</b><span data-i18n="w0p1d">Files go into a folder for each course.</span></div>
           </li>
           <li>
             <span class="pi"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v7m0 0L5.2 6.4M8 9l2.8-2.6M2.5 11.5v1a1.5 1.5 0 0 0 1.5 1.5h8a1.5 1.5 0 0 0 1.5-1.5v-1"/></svg></span>
-            <div><b>どのフォルダでも</b><span>Google ドライブや OneDrive の同期フォルダも選べます。</span></div>
+            <div><b data-i18n="w0p2b">Any folder you like</b><span data-i18n="w0p2d">Folders synced by Google Drive or OneDrive work too.</span></div>
           </li>
           <li>
             <span class="pi"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.8"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7"/></svg></span>
-            <div><b>外には送りません</b><span>取得も保存も、すべてこのブラウザの中で完結します。</span></div>
+            <div><b data-i18n="w0p3b">Nothing leaves your browser</b><span data-i18n="w0p3d">Downloading and saving all happen inside this browser.</span></div>
           </li>
         </ul>
       </section>
@@ -36,13 +36,13 @@
         <div class="badge-icon folder">
           <svg viewBox="0 0 16 16" width="40" height="40" fill="currentColor"><path d="M1.5 4.2a2 2 0 0 1 2-2h3c.5 0 1 .2 1.3.6l.8 1h6a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/></svg>
         </div>
-        <h1>保存先を選びます</h1>
-        <p class="lead">資料を入れるフォルダを、1つ選んでください。中に、科目ごとのフォルダが作られます。</p>
+        <h1 data-i18n="w1h1">Choose where to save</h1>
+        <p class="lead" data-i18n="w1lead">Pick one folder for your files. A folder for each course will be created inside it.</p>
         <div class="card chosen" id="root-card" hidden>
           <div class="row">
             <span class="ok-dot" aria-hidden="true"></span>
-            <div class="grow"><div class="title" id="root-name"></div><div class="path">を保存先にしました</div></div>
-            <button id="root-change" type="button">変更…</button>
+            <div class="grow"><div class="title" id="root-name"></div><div class="path" data-i18n="w1chosen">is now your save folder</div></div>
+            <button id="root-change" type="button" data-i18n="btnChange">Change…</button>
           </div>
         </div>
         <p class="hint" id="pick-msg"></p>
@@ -53,14 +53,14 @@
         <div class="badge-icon site">
           <svg viewBox="0 0 16 16" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.4"/><path d="M1.6 8h12.8M8 1.6c1.9 2 2.8 4.1 2.8 6.4S9.9 12.4 8 14.4C6.1 12.4 5.2 10.3 5.2 8S6.1 3.6 8 1.6z"/></svg>
         </div>
-        <h1>使う Moodle を登録します</h1>
-        <p class="lead">資料をダウンロードする、あなたの Moodle の URL を入力してください。</p>
-        <input id="site-url" class="big-input" type="url" inputmode="url" placeholder="https://moodle.example.ac.jp/" aria-label="MoodleのURL" />
-        <p class="hint" id="site-msg">ブラウザの確認が出るので「許可」を選んでください。あとから、設定でいつでも追加・解除できます。</p>
+        <h1 data-i18n="w2h1">Add your Moodle</h1>
+        <p class="lead" data-i18n="w2lead">Enter the URL of the Moodle you download files from.</p>
+        <input id="site-url" class="big-input" type="url" inputmode="url" placeholder="https://moodle.example.ac.jp/" data-i18n-aria-label="siteUrlAria" aria-label="Moodle URL" />
+        <p class="hint" id="site-msg" data-i18n="w2hint">Your browser will ask for permission — choose Allow. You can add or remove sites in Settings anytime.</p>
         <div class="card chosen" id="site-card" hidden>
           <div class="row">
             <span class="ok-dot" aria-hidden="true"></span>
-            <div class="grow"><div class="title" id="site-name"></div><div class="path">で使えるようにしました</div></div>
+            <div class="grow"><div class="title" id="site-name"></div><div class="path" data-i18n="w2ok">is ready to use</div></div>
           </div>
         </div>
       </section>
@@ -70,23 +70,23 @@
         <div class="badge-icon done">
           <svg viewBox="0 0 16 16" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>
         </div>
-        <h1>準備ができました</h1>
-        <p class="lead">Moodle の科目ページを開くと、資料の右端に保存ボタンが表示されます。</p>
+        <h1 data-i18n="w3h1">You’re all set</h1>
+        <p class="lead" data-i18n="w3lead">Open a course page in Moodle and a save button appears at the right edge of each file.</p>
         <div class="mock" aria-hidden="true">
-          <div class="mock-head"><b>第1回</b><span class="mock-bulk">⤓ すべて保存 <i>2</i></span></div>
-          <div class="mock-row"><span>講義資料 第1回.pdf</span><span class="mock-btn">⤓ 保存</span></div>
-          <div class="mock-row"><span>演習問題 第1回.pdf</span><span class="mock-ic">⤓</span></div>
+          <div class="mock-head"><b data-i18n="mockSection">Week 1</b><span class="mock-bulk">⤓ <span data-i18n="bulkSaveAll">Save all</span> <i>2</i></span></div>
+          <div class="mock-row"><span data-i18n="mockFile1">Lecture 1.pdf</span><span class="mock-btn">⤓ <span data-i18n="btnSave">Save</span></span></div>
+          <div class="mock-row"><span data-i18n="mockFile2">Exercises 1.pdf</span><span class="mock-ic">⤓</span></div>
         </div>
-        <p class="hint">初めて保存する科目では、保存先のフォルダを選ぶ画面が出ます。</p>
+        <p class="hint" data-i18n="w3hint">The first time you save a course, you’ll choose where it goes.</p>
       </section>
     </div>
 
     <footer class="bar">
-      <button id="back" class="link" type="button" hidden>戻る</button>
+      <button id="back" class="link" type="button" hidden data-i18n="btnBack">Back</button>
       <span class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="spacer"></span>
-      <button id="skip" class="link" type="button" hidden>あとで</button>
-      <button id="next" class="primary" type="button">はじめる</button>
+      <button id="skip" class="link" type="button" hidden data-i18n="btnLater">Later</button>
+      <button id="next" class="primary" type="button" data-i18n="btnStart">Get started</button>
     </footer>
   </main>
   <script type="module" src="welcome.js"></script>

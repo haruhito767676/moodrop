@@ -1,0 +1,434 @@
+{
+  "extName": {
+    "message": "Moodrop"
+  },
+  "extDescription": {
+    "message": "Save Moodle course files to a folder on your computer in one click, organized by course."
+  },
+  "actionTitle": {
+    "message": "Moodrop"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "btnContinue": {
+    "message": "Continue"
+  },
+  "btnChoose": {
+    "message": "Choose…"
+  },
+  "btnChange": {
+    "message": "Change…"
+  },
+  "btnAdd": {
+    "message": "Add"
+  },
+  "btnRemove": {
+    "message": "Remove"
+  },
+  "btnLater": {
+    "message": "Later"
+  },
+  "btnBack": {
+    "message": "Back"
+  },
+  "btnEnable": {
+    "message": "Enable"
+  },
+  "fileFallback": {
+    "message": "File"
+  },
+  "unnamed": {
+    "message": "(Unnamed)"
+  },
+  "rootDefaultName": {
+    "message": "Save folder"
+  },
+  "fallbackCourse": {
+    "message": "Untitled course"
+  },
+  "fallbackFolder": {
+    "message": "Untitled"
+  },
+  "errExtensionUpdated": {
+    "message": "Moodrop was updated. Please reload this page."
+  },
+  "errNoResponse": {
+    "message": "No response."
+  },
+  "errIncomplete": {
+    "message": "Couldn’t complete the request."
+  },
+  "errGrantDenied": {
+    "message": "Access to the save folder wasn’t allowed. Please try again."
+  },
+  "errFolderMissing": {
+    "message": "The save folder wasn’t found. Please choose it again in Settings."
+  },
+  "errOtherOrigin": {
+    "message": "Files from other sites can’t be saved."
+  },
+  "errNoAccess": {
+    "message": "Can’t access the folder."
+  },
+  "errTimeout": {
+    "message": "Moodle didn’t respond (timed out)."
+  },
+  "errFetchFailed": {
+    "message": "Couldn’t download the file from Moodle ($1)."
+  },
+  "errNoRealUrl": {
+    "message": "Couldn’t find the actual file URL (your Moodle theme may be different)."
+  },
+  "errNoFreeName": {
+    "message": "Couldn’t find a free file name."
+  },
+  "needsSetupMsg": {
+    "message": "No save folder has been chosen yet."
+  },
+  "btnSave": {
+    "message": "Save"
+  },
+  "btnSaveTitle": {
+    "message": "Save this file to the course folder"
+  },
+  "btnSaveAria": {
+    "message": "Save this file"
+  },
+  "btnRetryTitle": {
+    "message": "Click to retry"
+  },
+  "stateFailed": {
+    "message": "Failed"
+  },
+  "savedLabel": {
+    "message": "Saved"
+  },
+  "savedTitle": {
+    "message": "Saved: $1"
+  },
+  "resaveTitle": {
+    "message": "Save again"
+  },
+  "stateSaving": {
+    "message": "Saving…"
+  },
+  "stateCheckingAccess": {
+    "message": "Checking access…"
+  },
+  "stateChoosingFolder": {
+    "message": "Choosing folder…"
+  },
+  "stateConfirming": {
+    "message": "Confirming…"
+  },
+  "bulkSaveAll": {
+    "message": "Save all"
+  },
+  "bulkAllSaved": {
+    "message": "All saved"
+  },
+  "bulkProgress": {
+    "message": "Saving $1/$2"
+  },
+  "toastFailed": {
+    "message": "Couldn’t save “$1”: $2"
+  },
+  "toastUnknownError": {
+    "message": "Unknown error"
+  },
+  "toastRetry": {
+    "message": "Retry"
+  },
+  "toastRetryFailedOnes": {
+    "message": "Retry failed"
+  },
+  "toastBulkInterrupted": {
+    "message": "Bulk save stopped ($1 saved)"
+  },
+  "toastRetryInterrupted": {
+    "message": "Retry stopped ($1 saved)"
+  },
+  "toastBulkResult": {
+    "message": "$1 saved / $2 failed"
+  },
+  "toastBulkDone": {
+    "message": "Saved $1 files"
+  },
+  "toastOpenSettings": {
+    "message": "Open Settings"
+  },
+  "dupTitle": {
+    "message": "A file with this name already exists"
+  },
+  "dupBody": {
+    "message": "“$1” is already in this folder."
+  },
+  "dupApplyAll": {
+    "message": "Apply to the remaining duplicates"
+  },
+  "dupKeepBoth": {
+    "message": "Keep both"
+  },
+  "dupReplace": {
+    "message": "Replace"
+  },
+  "permTitle": {
+    "message": "Confirm access to the save folder"
+  },
+  "permBody": {
+    "message": "After restarting your browser, you need to allow access to the save folder again."
+  },
+  "permBodyNamed": {
+    "message": "After restarting your browser, you need to allow access to the save folder “$1” again."
+  },
+  "permHint": {
+    "message": "Choose “Allow on every visit” in the prompt to stop seeing this."
+  },
+  "permAllow": {
+    "message": "Allow"
+  },
+  "sheetTitle": {
+    "message": "Save location for this course"
+  },
+  "sheetAria": {
+    "message": "Choose a save location"
+  },
+  "tabExisting": {
+    "message": "Existing folder"
+  },
+  "tabNew": {
+    "message": "New folder"
+  },
+  "fieldFolderName": {
+    "message": "Folder name"
+  },
+  "labelNewName": {
+    "message": "Name for the new folder"
+  },
+  "labelWhere": {
+    "message": "Where to create it (click a folder to open it)"
+  },
+  "sheetLoading": {
+    "message": "Loading…"
+  },
+  "sheetEmpty": {
+    "message": "No folders"
+  },
+  "tagSimilar": {
+    "message": "Similar name"
+  },
+  "openFolderAria": {
+    "message": "Open $1"
+  },
+  "btnCreateSave": {
+    "message": "Create and save"
+  },
+  "btnSaveIn": {
+    "message": "Save in “$1”"
+  },
+  "btnSaveHere": {
+    "message": "Save in this folder"
+  },
+  "btnSaveRoot": {
+    "message": "Save directly in $1"
+  },
+  "optTitle": {
+    "message": "Moodrop Settings"
+  },
+  "navAria": {
+    "message": "Settings"
+  },
+  "navGeneral": {
+    "message": "General"
+  },
+  "navCourses": {
+    "message": "Courses"
+  },
+  "navSites": {
+    "message": "Moodle sites"
+  },
+  "navGuide": {
+    "message": "How to use"
+  },
+  "h2SaveFolder": {
+    "message": "Save folder"
+  },
+  "rootNone": {
+    "message": "Not set"
+  },
+  "rootNote": {
+    "message": "Files are saved into a folder for each course inside this one."
+  },
+  "badgeReady": {
+    "message": "Ready"
+  },
+  "badgeReauth": {
+    "message": "Needs permission"
+  },
+  "btnReauth": {
+    "message": "Allow again"
+  },
+  "hintSync": {
+    "message": "Folders synced by desktop apps such as Google Drive, OneDrive, Box, or iCloud work too."
+  },
+  "hintReset": {
+    "message": "Choosing a different folder resets each course’s location and the “Saved” records. (You can also use a new folder each semester.)"
+  },
+  "pickError": {
+    "message": "Couldn’t choose that folder ($1). Please choose a different one."
+  },
+  "confirmRoot": {
+    "message": "Change the save folder to “$1”?\n\nEach course’s location and the “Saved” records will be reset, and you’ll choose them again the next time you save. (Files you already saved are not deleted.)"
+  },
+  "h2CourseFolders": {
+    "message": "Course folders"
+  },
+  "autoTitle": {
+    "message": "Create folders from course names automatically"
+  },
+  "autoDesc": {
+    "message": "When off, you choose the location the first time you save each course."
+  },
+  "coursesLead": {
+    "message": "Where each course is saved. Press “Choose again” to pick a different location the next time you save."
+  },
+  "coursesEmpty": {
+    "message": "No courses saved yet"
+  },
+  "btnChooseAgain": {
+    "message": "Choose again"
+  },
+  "siteUrlAria": {
+    "message": "Moodle URL"
+  },
+  "sitesHint": {
+    "message": "You can also open a Moodle page and click Moodrop in the toolbar to enable it."
+  },
+  "sitesEmpty": {
+    "message": "Nothing registered yet"
+  },
+  "siteUrlInvalid": {
+    "message": "Enter a URL (https://…)."
+  },
+  "siteDenied": {
+    "message": "Access wasn’t allowed."
+  },
+  "setupTitle": {
+    "message": "Finish setting up"
+  },
+  "setupBody": {
+    "message": "No save folder has been chosen yet"
+  },
+  "badgeOn": {
+    "message": "On"
+  },
+  "h2Recent": {
+    "message": "Recent saves"
+  },
+  "siteOnSub": {
+    "message": "Save buttons appear on this site’s files"
+  },
+  "siteDetected": {
+    "message": "Moodle detected"
+  },
+  "siteNotMoodle": {
+    "message": "This doesn’t look like Moodle. Enable it only if you use it here."
+  },
+  "recentEmpty": {
+    "message": "No files saved yet"
+  },
+  "welTitle": {
+    "message": "Welcome to Moodrop"
+  },
+  "w0lead": {
+    "message": "Save Moodle files to any folder in one click."
+  },
+  "w0p1b": {
+    "message": "Organized by course"
+  },
+  "w0p1d": {
+    "message": "Files go into a folder for each course."
+  },
+  "w0p2b": {
+    "message": "Any folder you like"
+  },
+  "w0p2d": {
+    "message": "Folders synced by Google Drive or OneDrive work too."
+  },
+  "w0p3b": {
+    "message": "Nothing leaves your browser"
+  },
+  "w0p3d": {
+    "message": "Downloading and saving all happen inside this browser."
+  },
+  "btnStart": {
+    "message": "Get started"
+  },
+  "guideLink": {
+    "message": "See how it works"
+  },
+  "w1h1": {
+    "message": "Choose where to save"
+  },
+  "w1lead": {
+    "message": "Pick one folder for your files. A folder for each course will be created inside it."
+  },
+  "w1chosen": {
+    "message": "is now your save folder"
+  },
+  "btnPickFolder": {
+    "message": "Choose a folder…"
+  },
+  "w2h1": {
+    "message": "Add your Moodle"
+  },
+  "w2lead": {
+    "message": "Enter the URL of the Moodle you download files from."
+  },
+  "w2hint": {
+    "message": "Your browser will ask for permission — choose Allow. You can add or remove sites in Settings anytime."
+  },
+  "w2ok": {
+    "message": "is ready to use"
+  },
+  "w2denied": {
+    "message": "Access wasn’t allowed. Please try again."
+  },
+  "w3h1": {
+    "message": "You’re all set"
+  },
+  "w3h1Guide": {
+    "message": "How to use"
+  },
+  "w3lead": {
+    "message": "Open a course page in Moodle and a save button appears at the right edge of each file."
+  },
+  "mockSection": {
+    "message": "Week 1"
+  },
+  "mockFile1": {
+    "message": "Lecture 1.pdf"
+  },
+  "mockFile2": {
+    "message": "Exercises 1.pdf"
+  },
+  "w3hint": {
+    "message": "The first time you save a course, you’ll choose where it goes."
+  },
+  "btnOpenMoodle": {
+    "message": "Open Moodle"
+  },
+  "grantTitle": {
+    "message": "Allow access to the save folder"
+  },
+  "grantBody": {
+    "message": "Moodrop needs to confirm access to the save folder “$1” again. Press the button below and choose Allow in the prompt."
+  },
+  "grantDenied": {
+    "message": "Not allowed. Press the button again, or close this window."
+  }
+}

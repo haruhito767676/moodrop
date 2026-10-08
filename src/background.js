@@ -5,6 +5,7 @@ import { sanitizeName, savedKey, rankFolders } from './lib/names.js';
 import { fetchMoodleFile, parseFilenameFromDisposition, filenameFromUrl } from './lib/moodle.js';
 import { exists, existsAtPath, uniqueName, writeFile } from './lib/fs.js';
 import { ensureSiteScripts } from './lib/sites.js';
+import { t } from './lib/i18n.js';
 import {
   getRootHandle,
   permissionOf,
@@ -53,14 +54,14 @@ async function listDirs(dir) {
 // 未登録で自動作成もオフなら null を返し、ユーザーに選んでもらう。
 async function resolveCoursePath({ courseKey, courseName, dirPath }) {
   if (dirPath) {
-    const path = dirPath.map((s) => sanitizeName(s, '無題')).slice(0, 8);
+    const path = dirPath.map((s) => sanitizeName(s, t('fallbackFolder'))).slice(0, 8);
     await setCourseDir(courseKey, path, courseName);
     return path;
   }
   const entry = (await getCourseDirs())[courseKey];
   if (entry && entry.path.length) return entry.path;
   if ((await getSettings()).autoCreate) {
-    const path = [sanitizeName(courseName, '無題の科目')];
+    const path = [sanitizeName(courseName, t('fallbackCourse'))];
     await setCourseDir(courseKey, path, courseName);
     return path;
   }
@@ -82,7 +83,7 @@ async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDupli
     } catch { /* 一覧が取れなくても新規作成はできる */ }
     return {
       status: 'needs_folder',
-      suggested: sanitizeName(courseName, '無題の科目'),
+      suggested: sanitizeName(courseName, t('fallbackCourse')),
       matches: rankFolders(existing, courseName).slice(0, 5),
       rootName: root.name,
     };
@@ -93,7 +94,7 @@ async function saveFile({ fileUrl, suggestedName, courseKey, courseName, onDupli
     dir = await walk(root, path, true);
   } catch (e) {
     if (e.name === 'NotFoundError') {
-      return { status: 'needs_setup', message: '保存先フォルダが見つかりません。設定で選び直してください' };
+      return { status: 'needs_setup', message: t('errFolderMissing') };
     }
     throw e;
   }
@@ -154,7 +155,7 @@ function requestGrant() {
 // 保存を頼めるのは、そのMoodle自身のページからだけ（別オリジンのURLは取りに行かない）
 function assertSameOrigin(fileUrl, sender) {
   const from = sender && sender.url && new URL(sender.url).origin;
-  if (!from || new URL(fileUrl).origin !== from) throw new Error('このページ以外のURLは保存できません');
+  if (!from || new URL(fileUrl).origin !== from) throw new Error(t('errOtherOrigin'));
 }
 
 const handlers = {
@@ -170,7 +171,7 @@ const handlers = {
 
   async LIST_DIRS({ path }) {
     const root = await getRootHandle();
-    if (!root || (await permissionOf(root)) !== 'granted') return { status: 'error', message: 'フォルダにアクセスできません' };
+    if (!root || (await permissionOf(root)) !== 'granted') return { status: 'error', message: t('errNoAccess') };
     const dir = await walk(root, (path || []).slice(0, 8), false);
     return { status: 'ok', dirs: await listDirs(dir) };
   },

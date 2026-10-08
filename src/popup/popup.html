@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Moodrop</title>
+  <title data-i18n="extName">Moodrop</title>
   <link rel="stylesheet" href="../ui.css" />
   <style>
     body { width: 340px; padding: 14px; }
@@ -17,16 +17,16 @@
 <body>
   <header>
     <h1><img src="../../icons/icon48.png" width="22" height="22" alt="" />Moodrop</h1>
-    <button id="opts" class="link" type="button">設定</button>
+    <button id="opts" class="link" type="button" data-i18n="navAria">Settings</button>
   </header>
 
   <div class="card setup" id="setup-card" hidden>
     <div class="row">
       <div class="grow">
-        <div class="title">セットアップを完了しましょう</div>
-        <div class="path">保存先のフォルダが、まだ選ばれていません</div>
+        <div class="title" data-i18n="setupTitle">Finish setting up</div>
+        <div class="path" data-i18n="setupBody">No save folder has been chosen yet</div>
       </div>
-      <button id="setup-go" class="primary" type="button">続ける</button>
+      <button id="setup-go" class="primary" type="button" data-i18n="btnContinue">Continue</button>
     </div>
   </div>
 
@@ -36,22 +36,22 @@
         <div class="title" id="site-title"></div>
         <div class="path" id="site-sub"></div>
       </div>
-      <button id="site-enable" class="primary" type="button" hidden>有効にする</button>
-      <span id="site-on" class="badge ok" hidden>有効</span>
+      <button id="site-enable" class="primary" type="button" hidden data-i18n="btnEnable">Enable</button>
+      <span id="site-on" class="badge ok" hidden data-i18n="badgeOn">On</span>
     </div>
   </div>
 
-  <h2>保存先</h2>
+  <h2 data-i18n="rootDefaultName">Save folder</h2>
   <div class="card">
     <div class="row">
       <div class="grow">
-        <div class="title" id="root-name">未設定</div>
+        <div class="title" id="root-name" data-i18n="rootNone">Not set</div>
       </div>
-      <button id="root-set" type="button">選ぶ…</button>
+      <button id="root-set" type="button" data-i18n="btnChoose">Choose…</button>
     </div>
   </div>
 
-  <h2>最近の保存</h2>
+  <h2 data-i18n="h2Recent">Recent saves</h2>
   <div class="card" id="recent"></div>
 
   <script type="module" src="popup.js"></script>

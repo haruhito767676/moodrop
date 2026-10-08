@@ -1,5 +1,8 @@
 import { getRootHandle } from '../lib/store.js';
 import { getSites, enableSite, originOf, looksLikeMoodle } from '../lib/sites.js';
+import { t, applyI18n } from '../lib/i18n.js';
+
+applyI18n();
 
 const $ = (id) => document.getElementById(id);
 const openOptions = () => chrome.runtime.openOptionsPage();
@@ -19,14 +22,14 @@ async function renderSite() {
 
   if (enabled) {
     $('site-on').hidden = false;
-    $('site-sub').textContent = 'このサイトの資料に保存ボタンが表示されます';
+    $('site-sub').textContent = t('siteOnSub');
     return;
   }
 
   const isMoodle = await looksLikeMoodle(tab.id);
   $('site-sub').textContent = isMoodle
-    ? 'Moodleを検出しました'
-    : 'Moodleではないようです。使う場合のみ有効にしてください';
+    ? t('siteDetected')
+    : t('siteNotMoodle');
   const btn = $('site-enable');
   btn.hidden = false;
   btn.addEventListener('click', async () => {
@@ -34,7 +37,7 @@ async function renderSite() {
     if (await enableSite(origin, tab.id)) {
       btn.hidden = true;
       $('site-on').hidden = false;
-      $('site-sub').textContent = 'このサイトの資料に保存ボタンが表示されます';
+      $('site-sub').textContent = t('siteOnSub');
     } else {
       btn.disabled = false;
     }
@@ -45,7 +48,7 @@ async function renderRoot() {
   const root = await getRootHandle();
   if (root) {
     $('root-name').textContent = root.name;
-    $('root-set').textContent = '変更…';
+    $('root-set').textContent = t('btnChange');
     return;
   }
   // 保存先が未設定なら、案内の「保存先」のステップから続けられるようにする
@@ -63,7 +66,7 @@ async function renderRecent() {
   if (!items.length) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = 'まだ保存した資料はありません';
+    empty.textContent = t('recentEmpty');
     box.appendChild(empty);
     return;
   }
@@ -74,12 +77,12 @@ async function renderRecent() {
     body.className = 'grow';
     const title = document.createElement('div');
     title.className = 'title';
-    title.textContent = it.name || '(名称不明)';
+    title.textContent = it.name || t('unnamed');
     const sub = document.createElement('div');
     sub.className = 'path';
     sub.textContent = [it.courseName, it.at ? new Date(it.at).toLocaleString() : '']
       .filter(Boolean)
-      .join(' ・ ');
+      .join(' · ');
     body.append(title, sub);
     row.appendChild(body);
     box.appendChild(row);

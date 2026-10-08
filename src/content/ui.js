@@ -1,5 +1,7 @@
 // Moodrop のページ上UI（Shadow DOM）。Moodle側のCSSの影響を受けないよう、すべて隔離して描く。
 globalThis.MoodropUI = (() => {
+  const t = (key, ...subs) => chrome.i18n.getMessage(key, subs.map(String)) || key;
+
   const SVG = (inner, { w = 14, fill = 'none', vb = '0 0 16 16', sw = 1.7 } = {}) =>
     `<svg width="${w}" height="${w}" viewBox="${vb}" fill="${fill}" stroke="${fill === 'none' ? 'currentColor' : 'none'}" ` +
     `stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
@@ -145,7 +147,7 @@ globalThis.MoodropUI = (() => {
         h('button', { class: 'act', type: 'button', onclick: () => { remove(); onAction(); } }, actionLabel)
       );
     }
-    el.append(h('button', { class: 'x', type: 'button', 'aria-label': '閉じる', onclick: remove }, '×'));
+    el.append(h('button', { class: 'x', type: 'button', 'aria-label': t('close'), onclick: remove }, '×'));
     toasts.appendChild(el);
     timer = setTimeout(remove, timeout);
   }
@@ -162,25 +164,25 @@ globalThis.MoodropUI = (() => {
         modal.close();
         resolve(choice ? { choice, applyAll: all } : null);
       };
-      const rename = h('button', { class: 'pbtn', type: 'button', onclick: () => done('rename') }, '別名で保存');
+      const rename = h('button', { class: 'pbtn', type: 'button', onclick: () => done('rename') }, t('dupKeepBoth'));
       const box = h(
         'div',
-        { class: 'alert', role: 'alertdialog', 'aria-label': '同じ名前のファイルがあります' },
+        { class: 'alert', role: 'alertdialog', 'aria-label': t('dupTitle') },
         appIcon(),
-        h('div', { class: 't' }, '同じ名前のファイルがあります'),
-        h('div', { class: 'm' }, `「${filename}」はこのフォルダにすでにあります。`)
+        h('div', { class: 't' }, t('dupTitle')),
+        h('div', { class: 'm' }, t('dupBody', filename))
       );
       if (bulkMode) {
         applyAll = h('input', { type: 'checkbox' });
-        box.append(h('label', { class: 'check' }, applyAll, '以降の重複にも同じ操作を適用'));
+        box.append(h('label', { class: 'check' }, applyAll, t('dupApplyAll')));
       }
       box.append(
         h(
           'div',
           { class: 'stack' },
           rename,
-          h('button', { class: 'sbtn', type: 'button', onclick: () => done('overwrite') }, '上書き'),
-          h('button', { class: 'sbtn', type: 'button', onclick: () => done(null) }, 'キャンセル')
+          h('button', { class: 'sbtn', type: 'button', onclick: () => done('overwrite') }, t('dupReplace')),
+          h('button', { class: 'sbtn', type: 'button', onclick: () => done(null) }, t('cancel'))
         )
       );
       modal = openModal(box, { center: true, onDismiss: () => resolve(null) });
@@ -198,19 +200,19 @@ globalThis.MoodropUI = (() => {
         modal.close();
         resolve(v);
       };
-      const go = h('button', { class: 'pbtn', type: 'button', onclick: () => done(true) }, '許可する');
+      const go = h('button', { class: 'pbtn', type: 'button', onclick: () => done(true) }, t('permAllow'));
       const box = h(
         'div',
-        { class: 'alert', role: 'alertdialog', 'aria-label': '保存先フォルダへのアクセスを再確認' },
+        { class: 'alert', role: 'alertdialog', 'aria-label': t('permTitle') },
         appIcon(),
-        h('div', { class: 't' }, '保存先フォルダへのアクセスを再確認'),
+        h('div', { class: 't' }, t('permTitle')),
         h(
           'div',
           { class: 'm' },
-          `ブラウザを再起動したあとなどは、保存先フォルダ${rootName ? `「${rootName}」` : ''}へのアクセスをもう一度許可する必要があります。`
+          rootName ? t('permBodyNamed', rootName) : t('permBody')
         ),
-        h('div', { class: 'm hint' }, '許可の画面で「サイトを開くたびに許可」を選ぶと、次回から表示されません。'),
-        h('div', { class: 'stack' }, go, h('button', { class: 'sbtn', type: 'button', onclick: () => done(false) }, 'キャンセル'))
+        h('div', { class: 'm hint' }, t('permHint')),
+        h('div', { class: 'stack' }, go, h('button', { class: 'sbtn', type: 'button', onclick: () => done(false) }, t('cancel')))
       );
       modal = openModal(box, { center: true, onDismiss: () => resolve(false) });
       go.focus();
@@ -220,7 +222,7 @@ globalThis.MoodropUI = (() => {
   /* ---------- 保存先フォルダのシート ---------- */
 
   // 戻り値: 保存先のパス（ルートからのフォルダ名の配列）または null
-  function folderSheet({ courseName, suggested, matches = [], rootName = '保存先' }) {
+  function folderSheet({ courseName, suggested, matches = [], rootName = t('rootDefaultName') }) {
     return new Promise((resolve) => {
       let mode = matches.length ? 'existing' : 'new';
       let path = [];
@@ -237,11 +239,11 @@ globalThis.MoodropUI = (() => {
       const seg = h('div', { class: 'seg', role: 'group' });
       const crumbs = h('div', { class: 'crumbs' });
       const list = h('div', { class: 'list', role: 'listbox' });
-      const nameField = h('input', { class: 'field', type: 'text', value: suggested, 'aria-label': 'フォルダ名' });
-      const nameLabel = h('div', { class: 'label' }, '新しいフォルダの名前');
-      const placeLabel = h('div', { class: 'label', style: 'margin:0 0 6px 6px' }, '作成する場所（フォルダをクリックで移動）');
+      const nameField = h('input', { class: 'field', type: 'text', value: suggested, 'aria-label': t('fieldFolderName') });
+      const nameLabel = h('div', { class: 'label' }, t('labelNewName'));
+      const placeLabel = h('div', { class: 'label', style: 'margin:0 0 6px 6px' }, t('labelWhere'));
       const primary = h('button', { class: 'pbtn', type: 'button' });
-      const cancel = h('button', { class: 'sbtn', type: 'button', onclick: () => finish(null) }, 'キャンセル');
+      const cancel = h('button', { class: 'sbtn', type: 'button', onclick: () => finish(null) }, t('cancel'));
 
       const load = async () => {
         loading = true;
@@ -263,7 +265,7 @@ globalThis.MoodropUI = (() => {
 
       const renderSeg = () => {
         seg.replaceChildren(
-          ...[['existing', '既存のフォルダ'], ['new', '新しく作る']].map(([m, label]) =>
+          ...[['existing', t('tabExisting')], ['new', t('tabNew')]].map(([m, label]) =>
             h(
               'button',
               { type: 'button', 'aria-pressed': String(mode === m), onclick: () => { mode = m; selected = null; render(); } },
@@ -306,17 +308,17 @@ globalThis.MoodropUI = (() => {
           h('span', { class: 'fld' }, icon('folder')),
           h('span', { class: 'name' }, name),
           tag ? h('span', { class: 'tag' }, tag) : null,
-          h('button', { class: 'go', type: 'button', 'aria-label': `${name} を開く`, onclick: (e) => { e.stopPropagation(); enter(name); } }, icon('chevron'))
+          h('button', { class: 'go', type: 'button', 'aria-label': t('openFolderAria', name), onclick: (e) => { e.stopPropagation(); enter(name); } }, icon('chevron'))
         );
 
       const renderList = () => {
-        if (loading) return list.replaceChildren(h('div', { class: 'empty' }, '読み込み中…'));
+        if (loading) return list.replaceChildren(h('div', { class: 'empty' }, t('sheetLoading')));
         const rows = [];
         // ルート直下では、科目名に近い既存フォルダを先頭に出す
         const rec = path.length === 0 && mode === 'existing' ? matches.filter((m) => dirs.includes(m)) : [];
-        rec.forEach((m) => rows.push(row(m, { tag: '近い名前' })));
+        rec.forEach((m) => rows.push(row(m, { tag: t('tagSimilar') })));
         dirs.filter((d) => !rec.includes(d)).forEach((d) => rows.push(row(d)));
-        list.replaceChildren(...(rows.length ? rows : [h('div', { class: 'empty' }, 'フォルダはありません')]));
+        list.replaceChildren(...(rows.length ? rows : [h('div', { class: 'empty' }, t('sheetEmpty'))]));
       };
 
       const render = () => {
@@ -327,11 +329,11 @@ globalThis.MoodropUI = (() => {
         placeLabel.style.display = mode === 'new' ? '' : 'none';
         if (mode === 'new') {
           const n = nameField.value.trim();
-          primary.textContent = '作成して保存';
+          primary.textContent = t('btnCreateSave');
           primary.disabled = !n;
           primary.onclick = () => finish([...path, n]);
         } else {
-          primary.textContent = selected ? `「${selected}」に保存` : path.length ? 'このフォルダに保存' : `${rootName} に直接保存`;
+          primary.textContent = selected ? t('btnSaveIn', selected) : path.length ? t('btnSaveHere') : t('btnSaveRoot', rootName);
           primary.disabled = false;
           primary.onclick = () => finish(selected ? [...path, selected] : [...path]);
         }
@@ -344,8 +346,8 @@ globalThis.MoodropUI = (() => {
 
       const win = h(
         'div',
-        { class: 'window', role: 'dialog', 'aria-label': '保存先を選ぶ' },
-        h('div', { class: 'head' }, h('div', { class: 'title' }, 'この科目の保存先'), h('div', { class: 'sub' }, courseName)),
+        { class: 'window', role: 'dialog', 'aria-label': t('sheetAria') },
+        h('div', { class: 'head' }, h('div', { class: 'title' }, t('sheetTitle')), h('div', { class: 'sub' }, courseName)),
         h('div', { class: 'body' }, seg, placeLabel, crumbs, list, nameLabel, nameField),
         h('div', { class: 'foot' }, h('span', { class: 'spacer' }), cancel, primary)
       );
@@ -355,5 +357,5 @@ globalThis.MoodropUI = (() => {
     });
   }
 
-  return { h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet };
+  return { t, h, icon, makeHost, request, toast, duplicateAlert, permissionAlert, folderSheet };
 })();
