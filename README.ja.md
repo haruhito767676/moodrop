@@ -12,7 +12,7 @@ Moodleの資料の横に保存ボタンを置いて、パソコンの科目ご�
 [![Chrome](https://img.shields.io/badge/Chrome-111%2B-0a84ff)](#動作環境)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
-[English](README.md) · [プライバシー](PRIVACY.md)
+[ウェブサイト](https://haruhito767676.github.io/moodrop/ja/) · [English](README.md) · [プライバシー](PRIVACY.md)
 
 </div>
 

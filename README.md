@@ -12,7 +12,7 @@ No accounts, no cloud API setup, and nothing leaves your browser.
 [![Chrome](https://img.shields.io/badge/Chrome-111%2B-0a84ff)](#requirements)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
-[日本語](README.ja.md) · [Privacy](PRIVACY.md)
+[Website](https://haruhito767676.github.io/moodrop/) · [日本語](README.ja.md) · [Privacy](PRIVACY.md)
 
 </div>
 
