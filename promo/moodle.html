@@ -82,7 +82,7 @@ Element.prototype.attachShadow = function (init) { return _attach.call(this, { .
   const tree = { '': T.dirs };
   window.chrome = {
     i18n: {
-      getMessage(k, subs = []) { const m = msgs[k]; return m ? m.message.replace(/\$(\d)/g, (_, i) => subs[i - 1] ?? '') : ''; },
+      getMessage(k, subs = []) { const m = msgs[k]; if (!m) return ''; let t = m.message.replace(/\$(\w+)\$/g, (_, n) => (m.placeholders && m.placeholders[n.toLowerCase()] ? m.placeholders[n.toLowerCase()].content : '')); return t.replace(/\$(\d)/g, (_, i) => subs[i - 1] ?? ''); },
       getUILanguage: () => lang,
     },
     runtime: {

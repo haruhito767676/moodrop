@@ -78,7 +78,12 @@
     "message": "Moodle didn’t respond (timed out)."
   },
   "errFetchFailed": {
-    "message": "Couldn’t download the file from Moodle ($1)."
+    "message": "Couldn’t download the file from Moodle ($p1$).",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "errNoRealUrl": {
     "message": "Couldn’t find the actual file URL (your Moodle theme may be different)."
@@ -108,7 +113,12 @@
     "message": "Saved"
   },
   "savedTitle": {
-    "message": "Saved: $1"
+    "message": "Saved: $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "resaveTitle": {
     "message": "Save again"
@@ -132,10 +142,26 @@
     "message": "All saved"
   },
   "bulkProgress": {
-    "message": "Saving $1/$2"
+    "message": "Saving $p1$/$p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastFailed": {
-    "message": "Couldn’t save “$1”: $2"
+    "message": "Couldn’t save “$p1$”: $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastUnknownError": {
     "message": "Unknown error"
@@ -147,16 +173,39 @@
     "message": "Retry failed"
   },
   "toastBulkInterrupted": {
-    "message": "Bulk save stopped ($1 saved)"
+    "message": "Bulk save stopped ($p1$ saved)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastRetryInterrupted": {
-    "message": "Retry stopped ($1 saved)"
+    "message": "Retry stopped ($p1$ saved)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastBulkResult": {
-    "message": "$1 saved / $2 failed"
+    "message": "$p1$ saved / $p2$ failed",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastBulkDone": {
-    "message": "Saved $1 files"
+    "message": "Saved $p1$ files",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastOpenSettings": {
     "message": "Open Settings"
@@ -165,7 +214,12 @@
     "message": "A file with this name already exists"
   },
   "dupBody": {
-    "message": "“$1” is already in this folder."
+    "message": "“$p1$” is already in this folder.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "dupApplyAll": {
     "message": "Apply to the remaining duplicates"
@@ -183,7 +237,12 @@
     "message": "After restarting your browser, you need to allow access to the save folder again."
   },
   "permBodyNamed": {
-    "message": "After restarting your browser, you need to allow access to the save folder “$1” again."
+    "message": "After restarting your browser, you need to allow access to the save folder “$p1$” again.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "permHint": {
     "message": "Choose “Allow on every visit” in the prompt to stop seeing this."
@@ -222,19 +281,34 @@
     "message": "Similar name"
   },
   "openFolderAria": {
-    "message": "Open $1"
+    "message": "Open $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "btnCreateSave": {
     "message": "Create and save"
   },
   "btnSaveIn": {
-    "message": "Save in “$1”"
+    "message": "Save in “$p1$”",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "btnSaveHere": {
     "message": "Save in this folder"
   },
   "btnSaveRoot": {
-    "message": "Save directly in $1"
+    "message": "Save directly in $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "optTitle": {
     "message": "Moodrop Settings"
@@ -279,10 +353,20 @@
     "message": "Choosing a different folder resets each course’s location and the “Saved” records. (You can also use a new folder each semester.)"
   },
   "pickError": {
-    "message": "Couldn’t choose that folder ($1). Please choose a different one."
+    "message": "Couldn’t choose that folder ($p1$). Please choose a different one.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "confirmRoot": {
-    "message": "Change the save folder to “$1”?\n\nEach course’s location and the “Saved” records will be reset, and you’ll choose them again the next time you save. (Files you already saved are not deleted.)"
+    "message": "Change the save folder to “$p1$”?\n\nEach course’s location and the “Saved” records will be reset, and you’ll choose them again the next time you save. (Files you already saved are not deleted.)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "h2CourseFolders": {
     "message": "Course folders"
@@ -426,7 +510,12 @@
     "message": "Allow access to the save folder"
   },
   "grantBody": {
-    "message": "Moodrop needs to confirm access to the save folder “$1” again. Press the button below and choose Allow in the prompt."
+    "message": "Moodrop needs to confirm access to the save folder “$p1$” again. Press the button below and choose Allow in the prompt.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "grantDenied": {
     "message": "Not allowed. Press the button again, or close this window."

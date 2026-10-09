@@ -78,7 +78,12 @@
     "message": "Moodleからの応答がありません（タイムアウト）"
   },
   "errFetchFailed": {
-    "message": "Moodleからのファイル取得に失敗しました ($1)"
+    "message": "Moodleからのファイル取得に失敗しました ($p1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "errNoRealUrl": {
     "message": "資料の実ファイルURLを特定できませんでした（Moodleのテーマ差の可能性があります）"
@@ -108,7 +113,12 @@
     "message": "保存済み"
   },
   "savedTitle": {
-    "message": "保存済み: $1"
+    "message": "保存済み: $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "resaveTitle": {
     "message": "もう一度保存する"
@@ -132,10 +142,26 @@
     "message": "すべて保存済み"
   },
   "bulkProgress": {
-    "message": "保存中 $1/$2"
+    "message": "保存中 $p1$/$p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastFailed": {
-    "message": "「$1」の保存に失敗しました: $2"
+    "message": "「$p1$」の保存に失敗しました: $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastUnknownError": {
     "message": "不明なエラー"
@@ -147,16 +173,39 @@
     "message": "失敗分を再試行"
   },
   "toastBulkInterrupted": {
-    "message": "一括保存を中断しました（$1 件保存）"
+    "message": "一括保存を中断しました（$p1$ 件保存）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastRetryInterrupted": {
-    "message": "再試行を中断しました（$1 件保存）"
+    "message": "再試行を中断しました（$p1$ 件保存）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastBulkResult": {
-    "message": "$1 件成功 / $2 件失敗"
+    "message": "$p1$ 件成功 / $p2$ 件失敗",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   },
   "toastBulkDone": {
-    "message": "$1 件の資料を保存しました"
+    "message": "$p1$ 件の資料を保存しました",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "toastOpenSettings": {
     "message": "設定を開く"
@@ -165,7 +214,12 @@
     "message": "同じ名前のファイルがあります"
   },
   "dupBody": {
-    "message": "「$1」はこのフォルダにすでにあります。"
+    "message": "「$p1$」はこのフォルダにすでにあります。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "dupApplyAll": {
     "message": "以降の重複にも同じ操作を適用"
@@ -183,7 +237,12 @@
     "message": "ブラウザを再起動したあとなどは、保存先フォルダへのアクセスをもう一度許可する必要があります。"
   },
   "permBodyNamed": {
-    "message": "ブラウザを再起動したあとなどは、保存先フォルダ「$1」へのアクセスをもう一度許可する必要があります。"
+    "message": "ブラウザを再起動したあとなどは、保存先フォルダ「$p1$」へのアクセスをもう一度許可する必要があります。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "permHint": {
     "message": "許可の画面で「サイトを開くたびに許可」を選ぶと、次回から表示されません。"
@@ -222,19 +281,34 @@
     "message": "近い名前"
   },
   "openFolderAria": {
-    "message": "$1 を開く"
+    "message": "$p1$ を開く",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "btnCreateSave": {
     "message": "作成して保存"
   },
   "btnSaveIn": {
-    "message": "「$1」に保存"
+    "message": "「$p1$」に保存",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "btnSaveHere": {
     "message": "このフォルダに保存"
   },
   "btnSaveRoot": {
-    "message": "$1 に直接保存"
+    "message": "$p1$ に直接保存",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "optTitle": {
     "message": "Moodrop 設定"
@@ -279,10 +353,20 @@
     "message": "別のフォルダに変えると、科目ごとの保存先と「保存済み」の記録はリセットされます（学期ごとに変える使い方もできます）。"
   },
   "pickError": {
-    "message": "フォルダを選べませんでした（$1）。別のフォルダを選んでください。"
+    "message": "フォルダを選べませんでした（$p1$）。別のフォルダを選んでください。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "confirmRoot": {
-    "message": "保存先を「$1」に変更します。\n\n科目ごとの保存先と「保存済み」の記録はリセットされ、次に保存するときに、もう一度選び直します（保存済みのファイルは消えません）。\n\nよろしいですか？"
+    "message": "保存先を「$p1$」に変更します。\n\n科目ごとの保存先と「保存済み」の記録はリセットされ、次に保存するときに、もう一度選び直します（保存済みのファイルは消えません）。\n\nよろしいですか？",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "h2CourseFolders": {
     "message": "科目フォルダ"
@@ -426,7 +510,12 @@
     "message": "保存先フォルダへのアクセスを許可"
   },
   "grantBody": {
-    "message": "保存先フォルダ「$1」へのアクセスを、もう一度確認します。下のボタンを押して、表示される確認で「許可」を選んでください。"
+    "message": "保存先フォルダ「$p1$」へのアクセスを、もう一度確認します。下のボタンを押して、表示される確認で「許可」を選んでください。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   },
   "grantDenied": {
     "message": "許可されませんでした。もう一度押すか、ウィンドウを閉じてください。"

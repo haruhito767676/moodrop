@@ -16,16 +16,48 @@ function walk(dir, out = []) {
   return out;
 }
 const sources = walk('src');
-const subs = (s) => [...new Set(s.match(/\$\d/g) || [])].sort().join(',');
+
+// Chrome は、メッセージの中の $名前$ を placeholders の定義で置き換え、定義がなかったり、
+// 対になっていない $ があったりすると、そのロケールのメッセージを丸ごと読み込まない。
+// 同じ検査をここでもやる（これを破ると、画面にキー名がそのまま出る）。
+function chromeProblems(file, name) {
+  const out = [];
+  for (const [key, entry] of Object.entries(file)) {
+    const msg = entry.message;
+    const defined = Object.keys(entry.placeholders || {}).map((s) => s.toLowerCase());
+    const rest = msg.replace(/\$\$/g, '').replace(/\$([A-Za-z0-9_@]+)\$/g, (_, n) => {
+      if (!defined.includes(n.toLowerCase())) out.push(`${name}.${key}: $${n}$ is not defined`);
+      return '';
+    });
+    if (rest.includes('$')) out.push(`${name}.${key}: stray "$" in ${JSON.stringify(msg)}`);
+    for (const [pn, p] of Object.entries(entry.placeholders || {})) {
+      if (!/^\$[1-9]$/.test(p.content)) out.push(`${name}.${key}: placeholder ${pn} should be $1..$9`);
+      if (!new RegExp(`\\$${pn}\\$`, 'i').test(msg)) out.push(`${name}.${key}: placeholder ${pn} is unused`);
+    }
+  }
+  return out;
+}
+// 置き換え後の $1/$2 の集合
+const args = (e) => Object.values(e.placeholders || {}).map((p) => p.content).sort().join(',');
+
+test('message files are acceptable to Chrome (no undefined or stray $)', () => {
+  assert.deepEqual([...chromeProblems(en, 'en'), ...chromeProblems(ja, 'ja')], []);
+});
+
+test('message names are unique ignoring case (Chrome treats them as case-insensitive)', () => {
+  for (const [name, file] of [['en', en], ['ja', ja]]) {
+    const lower = Object.keys(file).map((k) => k.toLowerCase());
+    assert.equal(new Set(lower).size, lower.length, `${name} has names that differ only by case`);
+    for (const k of Object.keys(file)) assert.match(k, /^[A-Za-z0-9_@]+$/);
+  }
+});
 
 test('en and ja define exactly the same keys', () => {
   assert.deepEqual(Object.keys(en).sort(), Object.keys(ja).sort());
 });
 
-test('en and ja use the same $1/$2 placeholders in every message', () => {
-  for (const k of Object.keys(en)) {
-    assert.equal(subs(en[k].message), subs(ja[k].message), `placeholders differ for "${k}"`);
-  }
+test('en and ja take the same arguments in every message', () => {
+  for (const k of Object.keys(en)) assert.equal(args(en[k]), args(ja[k]), `arguments differ for "${k}"`);
 });
 
 test('every key used in the source exists in the locale files', () => {

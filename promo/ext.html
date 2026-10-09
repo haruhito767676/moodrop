@@ -27,7 +27,7 @@
   };
   if (p === 'welcome') { delete store.sites; delete store.courseDirs; }
   window.chrome = {
-    i18n: { getMessage(k, s = []) { const m = msgs[k]; return m ? m.message.replace(/\$(\d)/g, (_, i) => s[i - 1] ?? '') : ''; }, getUILanguage: () => lang },
+    i18n: { getMessage(k, subs = []) { const m = msgs[k]; if (!m) return ''; let t = m.message.replace(/\$(\w+)\$/g, (_, n) => (m.placeholders && m.placeholders[n.toLowerCase()] ? m.placeholders[n.toLowerCase()].content : '')); return t.replace(/\$(\d)/g, (_, i) => subs[i - 1] ?? ''); }, getUILanguage: () => lang },
     storage: { local: { async get(k) { const o = {}; (Array.isArray(k) ? k : [k]).forEach((x) => { if (x in store) o[x] = JSON.parse(JSON.stringify(store[x])); }); return o; }, async set(o) { Object.assign(store, o); }, async remove(ks) { [].concat(ks).forEach((k) => delete store[k]); } } },
     permissions: { async request() { return true; }, async remove() {}, async contains() { return true; } },
     scripting: { async unregisterContentScripts() {}, async registerContentScripts() {}, async getRegisteredContentScripts() { return []; }, async executeScript() { return [{ result: true }]; } },
