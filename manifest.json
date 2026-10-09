@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "default_locale": "en",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkCBqJSig0OKPnzxYkwzpoAeH2lcktullH7pw7xOkuqkW6HSTl2ncjQf3GZBoWySF2qMrAOkIHgfbp6XTyAsEpPojXKxD+0Gds1DoQKMgTZCDKHCITl+CcB9lSpS2EUuPYPOgYW7unxOEzN2He7CXhwlSlb+IW2xHh/VBm3tnhEqqXQG0MmIRQuevujaxwMSUGZ3hxQRZQES4NM5W0Z0ANBhY7SKQUJ+bQlYON5dxwi792V8l99K7ViyVjd17cBM1rv/nJllns5ULtC0jQntnfKPr/iAqWYbLZCPEkgQ7WcmBSdnSm+POqcC00Io+2EtXz5fIqZOm+EUeL3i8q3vFKQIDAQAB",
   "minimum_chrome_version": "111",
   "description": "__MSG_extDescription__",
   "icons": {

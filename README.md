@@ -84,7 +84,9 @@ Moodrop is not on the Chrome Web Store yet, so load it as an unpacked extension:
 3. Click **Load unpacked** and choose the folder that contains `manifest.json`.
 4. A welcome page opens. Follow the three steps: choose a save folder, add your Moodle's URL, and you're ready.
 
-To update, pull or download the new version and press the reload (↻) button on the extension's card. Your settings are kept. (Removing the extension clears them.)
+**Keep the folder where it is.** Chrome loads Moodrop straight from the folder you chose, so deleting it removes the extension. If you have to move it, load it again from the new place; your settings are kept.
+
+To update, replace the files in that folder with the new version (or `git pull`) and press the reload (↻) button on the extension's card. Your settings are kept. (Removing the extension clears them.)
 
 ### Requirements
 
