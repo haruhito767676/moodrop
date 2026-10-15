@@ -16,6 +16,12 @@ No accounts, no cloud API setup, and nothing leaves your browser.
 
 </div>
 
+
+
+https://github.com/user-attachments/assets/e29d8be0-d118-4b17-b1d1-e8644c8e7d42
+
+
+
 <br>
 
 > **Status:** Moodrop is in active development and is not on the Chrome Web Store yet. For now, [install it from source](#install).
