@@ -16,11 +16,7 @@ No accounts, no cloud API setup, and nothing leaves your browser.
 
 </div>
 
-
-
 https://github.com/user-attachments/assets/e29d8be0-d118-4b17-b1d1-e8644c8e7d42
-
-
 
 <br>
 
@@ -29,7 +25,6 @@ https://github.com/user-attachments/assets/e29d8be0-d118-4b17-b1d1-e8644c8e7d42
 > Moodrop is an unofficial tool and is not affiliated with Moodle Pty Ltd. "Moodle" is a trademark of Moodle Pty Ltd.
 
 <p align="center"><img src="docs/media/clip-one-en.webp" width="820" alt="Hovering a file in Moodle shows a Save button; one click saves it, and it lands in a folder on the computer"></p>
-<p align="center"><a href="docs/media/demo-en.mp4">▶ Watch the 38-second demo (mp4)</a></p>
 
 ---
 

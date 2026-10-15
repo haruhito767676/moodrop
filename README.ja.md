@@ -16,11 +16,7 @@ Moodleの資料の横に保存ボタンを置いて、パソコンの科目ご�
 
 </div>
 
-
-
 https://github.com/user-attachments/assets/f951eb1c-e4f6-4cc3-bee1-b9d5b8a61fe9
-
-
 
 <br>
 
@@ -29,7 +25,6 @@ https://github.com/user-attachments/assets/f951eb1c-e4f6-4cc3-bee1-b9d5b8a61fe9
 > Moodropは非公式のツールで、Moodle Pty Ltd とは関係ありません。「Moodle」は Moodle Pty Ltd の商標です。
 
 <p align="center"><img src="docs/media/clip-one-ja.webp" width="820" alt="Moodleの資料にポインタを乗せると保存ボタンが出て、1クリックでパソコンのフォルダに保存される"></p>
-<p align="center"><a href="docs/media/demo-ja.mp4">▶ 38秒のデモを見る（mp4）</a></p>
 
 ---
 
