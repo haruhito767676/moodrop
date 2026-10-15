@@ -24,12 +24,12 @@ https://github.com/user-attachments/assets/e29d8be0-d118-4b17-b1d1-e8644c8e7d42
 
 <br>
 
-> **Status:** Moodrop is in active development and is not on the Chrome Web Store yet. For now, [install it from source](#install).
+> **Status:** Moodrop is not on the Chrome Web Store yet. For now, [install it from source](#install).
 
 > Moodrop is an unofficial tool and is not affiliated with Moodle Pty Ltd. "Moodle" is a trademark of Moodle Pty Ltd.
 
 <p align="center"><img src="docs/media/clip-one-en.webp" width="820" alt="Hovering a file in Moodle shows a Save button; one click saves it, and it lands in a folder on the computer"></p>
-<p align="center"><sub>Watch the 38-second demo: <a href="docs/media/demo-en.mp4">demo-en.mp4</a></sub></p>
+<p align="center"><a href="docs/media/demo-en.mp4">▶ Watch the 38-second demo (mp4)</a></p>
 
 ---
 

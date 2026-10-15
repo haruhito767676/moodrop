@@ -24,12 +24,12 @@ https://github.com/user-attachments/assets/f951eb1c-e4f6-4cc3-bee1-b9d5b8a61fe9
 
 <br>
 
-> **状況:** Moodropは開発中で、まだChromeウェブストアには公開していません。当面は[ソースから導入](#導入)してください。
+> **状況:** Moodropはまだ Chrome ウェブストアには公開していません。当面は[ソースから導入](#導入)してください。
 
 > Moodropは非公式のツールで、Moodle Pty Ltd とは関係ありません。「Moodle」は Moodle Pty Ltd の商標です。
 
 <p align="center"><img src="docs/media/clip-one-ja.webp" width="820" alt="Moodleの資料にポインタを乗せると保存ボタンが出て、1クリックでパソコンのフォルダに保存される"></p>
-<p align="center"><sub>38秒のデモを見る: <a href="docs/media/demo-ja.mp4">demo-ja.mp4</a></sub></p>
+<p align="center"><a href="docs/media/demo-ja.mp4">▶ 38秒のデモを見る（mp4）</a></p>
 
 ---
 
