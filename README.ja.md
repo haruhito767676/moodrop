@@ -16,6 +16,12 @@ Moodleの資料の横に保存ボタンを置いて、パソコンの科目ご�
 
 </div>
 
+
+
+https://github.com/user-attachments/assets/f951eb1c-e4f6-4cc3-bee1-b9d5b8a61fe9
+
+
+
 <br>
 
 > **状況:** Moodropは開発中で、まだChromeウェブストアには公開していません。当面は[ソースから導入](#導入)してください。
